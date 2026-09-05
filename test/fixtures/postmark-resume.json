@@ -1,0 +1,14 @@
+{
+  "MessageID": "phase1-fixture-message-001",
+  "From": "applicant@example.com",
+  "To": "jobs+eng-042@example.com",
+  "Subject": "Application for software engineer",
+  "TextBody": "Please find my resume attached.",
+  "Attachments": [
+    {
+      "Name": "resume.pdf",
+      "ContentType": "application/pdf",
+      "Content": "JVBERi0xLjQKJcTl8uXrpOAKMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAwIFIKPj4KZW5kb2JqCgoyIDAgb2JqCjw8Ci9UeXBlIC9QYWdlcwo+PgplbmRvYmoKdHJhaWxlcgo8PAovUm9vdCAxIDAgUgo+PgolJUVPRgo="
+    }
+  ]
+}
