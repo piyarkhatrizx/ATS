@@ -7,19 +7,158 @@
   --line: #d9ddd4;
   --accent: #d36b43;
   --accent-deep: #994b2e;
+  --surface: #fbfaf6;
+  --surface-raised: rgb(255 255 255 / 0.72);
+  --surface-sidebar: rgb(29 48 43 / 0.94);
+  --scrim: rgb(24 34 31 / 0.32);
+  --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif;
+  --font-mono-ui: "SF Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Type scale: compact enough for long recruiter sessions, with one clear display step. */
+  --text-xs: 0.6875rem;
+  --text-sm: 0.8125rem;
+  --text-md: 0.9375rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 2.25rem;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+
+  --status-new: #526b84;
+  --status-screening: #765e9a;
+  --status-phone: #a66b2c;
+  --status-interview: #26756d;
+  --status-offer: #8c5a28;
+  --status-hired: #2c7650;
+  --status-rejected: #a64943;
+  --status-withdrawn: #68736e;
+
+  --shadow-panel: 0 10px 30px rgb(24 34 31 / 0.08), 0 2px 8px rgb(24 34 31 / 0.05);
+  --shadow-dialog: 0 24px 70px rgb(24 34 31 / 0.18), 0 4px 16px rgb(24 34 31 / 0.08);
+  --shadow-focus: 0 0 0 3px rgb(211 107 67 / 0.18);
+
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --duration-press: 140ms;
+  --duration-popover: 180ms;
+  --duration-drawer: 260ms;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-ui);
+  --font-mono: var(--font-mono-ui);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), sans-serif;
+  font-family: var(--font-ui);
+  font-size: var(--text-md);
+  line-height: 1.5;
+  font-optical-sizing: auto;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+}
+
+.ui-material {
+  background: var(--surface-raised);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.ui-button {
+  transition: transform var(--duration-press) var(--ease-out), background-color var(--duration-press) ease, border-color var(--duration-press) ease, color var(--duration-press) ease;
+}
+
+.ui-button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.ui-dialog[open] {
+  animation: ui-dialog-in var(--duration-popover) var(--ease-out) both;
+}
+
+.ui-dialog::backdrop {
+  background: var(--scrim);
+  animation: ui-backdrop-in var(--duration-popover) ease-out both;
+}
+
+.ui-slide-over {
+  animation: ui-slide-in var(--duration-drawer) var(--ease-drawer) both;
+}
+
+@keyframes ui-dialog-in {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes ui-backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes ui-slide-in {
+  from { opacity: 0; transform: translateX(100%); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-dialog[open],
+  .ui-dialog::backdrop,
+  .ui-slide-over {
+    animation-duration: 1ms;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .ui-material {
+    background: var(--surface);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --surface-raised: var(--surface);
+    --line: #87918b;
+    --ink-muted: #46534d;
+  }
 }
 
 ::selection {
