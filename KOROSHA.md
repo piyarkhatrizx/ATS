@@ -30,9 +30,14 @@ Black, white, light purple #e1b9f0. Dark glassmorphism.
 - rule: a disqualifier. question_key, operator, value, action, reason,
   active, priority. Runs once at submission. question_key must reference
   a field key from the form definition.
-- activity_event: append only log. type is one of applied, called,
-  status_changed, emailed, forwarded, auto_rejected. Every state change
-  writes exactly one event. All analytics read from here and nowhere else.
+- activity_event: append only log. Stored on the Activity table; type is
+  SCREAMING_CASE to match the existing column. The event vocabulary is
+  APPLICATION_CREATED, REAPPLIED, CALL_LOGGED, STATUS_CHANGED, EMAIL_SENT,
+  EMAIL_RECEIVED, FORWARDED, AUTO_REJECTED, NOTE_ADDED, PARSED,
+  DOCUMENT_ATTACHED. EMAIL_SENT and EMAIL_RECEIVED stay distinct; analytics
+  counts EMAIL_SENT where this spec previously said "emailed". Every state
+  change writes exactly one event. All analytics read from here and nowhere
+  else.
 - form_definition: JSON array of fields (key, label, type, options,
   required) plus consent text. Powers the builder, the public apply page,
   and the export.
@@ -68,6 +73,18 @@ lib/auth-config.ts, and nothing else.
 Every apply submission stores a snapshot of the exact consent text shown,
 not a reference to the current version. Telephony and recording are not
 built yet, but the schema should not make them hard to add later.
+
+## Known tradeoffs
+- Migrations are generated with `prisma migrate diff --from-schema-datasource`
+  and applied with `prisma migrate deploy`, because `prisma migrate dev` needs
+  a shadow database and the Supabase session pooler cannot provide one (the
+  direct host is IPv6 only and unreachable from most laptops). Consequence: a
+  new migration is diffed against the LIVE DATABASE, not replayed from the
+  migration history. If the database ever drifts from the migrations, the next
+  diff absorbs that drift silently instead of failing. Check `prisma migrate
+  status` and read generated SQL before applying it.
+- FORWARDED.destination is free text. TODO: it needs a client-list foreign key
+  once forwarding is actually built in Phase 5.
 
 ## Working rules
 - Read this file before starting work.
