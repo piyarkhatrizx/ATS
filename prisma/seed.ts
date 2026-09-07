@@ -11,7 +11,7 @@
  * existing call sites (lib/intake.ts, lib/parser.ts, app/actions/application.ts)
  * because lib/activity/ does not exist yet.
  */
-import type { ApplicationSource, ApplicationStatus } from "@prisma/client";
+import { Prisma, type ApplicationSource, type ApplicationStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
 const CAREGIVER_ALIAS = process.env.CAREGIVER_JOB_ALIAS ?? "caregiver";
@@ -19,6 +19,19 @@ const SECOND_ALIAS = "overnight";
 
 const DAY = 24 * 60 * 60 * 1000;
 const daysAgo = (days: number) => new Date(Date.now() - days * DAY);
+
+/**
+ * Matches what caregiverApplicationSchema produces, which is what lib/intake.ts
+ * writes into Application.screening. Only APPLY_FORM applications get one:
+ * the email path never asks these questions, and seeing null render alongside
+ * real answers is the point.
+ */
+type Screening = {
+  isAtLeast18: boolean;
+  isCpaCertified: boolean | null;
+  patientUsesMedicare: boolean;
+  caregivingInterest: "GENERAL_CAREGIVER" | "CURRENTLY_CARING_FOR_PATIENT";
+};
 
 type SeedCandidate = {
   key: string;
@@ -32,8 +45,9 @@ type SeedCandidate = {
   status: ApplicationStatus;
   source: ApplicationSource;
   daysAgo: number;
+  screening?: Screening;
   /** Also applies to the second requisition, to exercise cross-application UI. */
-  alsoOvernight?: { status: ApplicationStatus; source: ApplicationSource; daysAgo: number };
+  alsoOvernight?: { status: ApplicationStatus; source: ApplicationSource; daysAgo: number; screening?: Screening };
   /** How many extra STATUS_CHANGED rows to write. 0 leaves an empty timeline. */
   history?: ApplicationStatus[];
 };
@@ -46,6 +60,7 @@ const CANDIDATES: SeedCandidate[] = [
     email: "bo.ng@example.com", phone: "(216) 555-0142",
     location: "Cleveland, OH", currentTitle: "CNA", currentEmployer: "Riverside Senior Living",
     status: "NEW", source: "APPLY_FORM", daysAgo: 1,
+    screening: { isAtLeast18: true, isCpaCertified: null, patientUsesMedicare: false, caregivingInterest: "GENERAL_CAREGIVER" },
   },
   {
     key: "02", firstName: "María José", lastName: "Fernández-Villalobos",
@@ -69,8 +84,9 @@ const CANDIDATES: SeedCandidate[] = [
     email: "aisha.okonkwo@example.com", phone: "(216) 555-0113",
     location: "Euclid, OH", currentTitle: "Caregiver", currentEmployer: "Harbor Light Homes",
     status: "INTERVIEW", source: "APPLY_FORM", daysAgo: 9,
+    screening: { isAtLeast18: true, isCpaCertified: true, patientUsesMedicare: true, caregivingInterest: "CURRENTLY_CARING_FOR_PATIENT" },
     history: ["NEW", "SCREENING", "PHONE_SCREEN", "INTERVIEW"],
-    alsoOvernight: { status: "NEW", source: "APPLY_FORM", daysAgo: 2 },
+    alsoOvernight: { status: "NEW", source: "APPLY_FORM", daysAgo: 2, screening: { isAtLeast18: true, isCpaCertified: false, patientUsesMedicare: true, caregivingInterest: "CURRENTLY_CARING_FOR_PATIENT" } },
   },
   {
     key: "05", firstName: "Dmitri", lastName: "Volkov",
@@ -98,6 +114,7 @@ const CANDIDATES: SeedCandidate[] = [
     email: "priyanka.raghunathan@example.com", phone: "(216) 555-0186",
     location: "Westlake, OH", currentTitle: "Hospice Aide", currentEmployer: "Compassus",
     status: "WITHDRAWN", source: "APPLY_FORM", daysAgo: 25,
+    screening: { isAtLeast18: true, isCpaCertified: true, patientUsesMedicare: false, caregivingInterest: "GENERAL_CAREGIVER" },
     history: ["NEW", "SCREENING", "WITHDRAWN"],
   },
   // No phone on file — the Call button's disabled state is otherwise unreachable.
@@ -133,7 +150,9 @@ const CANDIDATES: SeedCandidate[] = [
     key: "13", firstName: "Sarah", lastName: "O'Brien",
     email: "sarah.obrien@example.com", phone: "(440) 555-0138",
     location: "North Olmsted, OH", currentTitle: "STNA", currentEmployer: "Legacy Health Services",
+    // Disqualifying on age: the columns should show a real No, not all Yes.
     status: "NEW", source: "APPLY_FORM", daysAgo: 4,
+    screening: { isAtLeast18: false, isCpaCertified: null, patientUsesMedicare: false, caregivingInterest: "GENERAL_CAREGIVER" },
   },
   {
     key: "14", firstName: "Ana", lastName: "Cruz",
@@ -188,13 +207,14 @@ async function main() {
     const appliedAt = daysAgo(person.daysAgo);
     await prisma.application.upsert({
       where: { id: applicationId },
-      update: { status: person.status, source: person.source, appliedAt },
+      update: { status: person.status, source: person.source, appliedAt, screening: person.screening ?? Prisma.JsonNull },
       create: {
         id: applicationId,
         candidateId,
         jobId: caregiver.id,
         status: person.status,
         source: person.source,
+        screening: person.screening ?? Prisma.JsonNull,
         appliedAt,
       },
     });
@@ -207,6 +227,7 @@ async function main() {
         update: {
           status: person.alsoOvernight.status,
           source: person.alsoOvernight.source,
+          screening: person.alsoOvernight.screening ?? Prisma.JsonNull,
           appliedAt: secondApplied,
         },
         create: {
@@ -215,6 +236,7 @@ async function main() {
           jobId: overnight.id,
           status: person.alsoOvernight.status,
           source: person.alsoOvernight.source,
+          screening: person.alsoOvernight.screening ?? Prisma.JsonNull,
           appliedAt: secondApplied,
         },
       });

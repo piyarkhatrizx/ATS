@@ -9,7 +9,6 @@ import {
   type PostmarkInboundPayload,
 } from "@/lib/inbound";
 import { prisma } from "@/lib/prisma";
-import { drainParseJobs } from "@/lib/parser";
 import { uploadBuffer } from "@/lib/storage";
 import { isAuthorized } from "@/lib/webhook-auth";
 
@@ -121,7 +120,12 @@ export async function POST(request: Request) {
 
     if (parseJobIds.length) {
       try {
-        after(() => drainParseJobs(parseJobIds));
+        // Imported lazily so the webhook's request path does not pull in
+        // pdf-parse, mammoth and the Anthropic SDK just to write a queue row.
+        after(async () => {
+          const { drainParseJobs } = await import("@/lib/parser");
+          await drainParseJobs(parseJobIds);
+        });
       } catch {
         // Outside a request scope `after` is unavailable. The jobs stay QUEUED
         // and GET /api/parse/retry drains them; never fail the webhook for this.
