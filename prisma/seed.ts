@@ -13,6 +13,7 @@
  */
 import { Prisma, type ApplicationSource, type ApplicationStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { activityPayloadSchema } from "@/lib/activity/types";
 
 const CAREGIVER_ALIAS = process.env.CAREGIVER_JOB_ALIAS ?? "caregiver";
 const SECOND_ALIAS = "overnight";
@@ -317,9 +318,9 @@ async function main() {
       });
     }
 
-    // Activity shapes copied from the three real call sites:
-    //   APPLICATION_CREATED -> { source }   (lib/intake.ts)
-    //   STATUS_CHANGED      -> { from, to } (app/actions/application.ts)
+    // Upsert rather than writeActivity: fixed ids are what make reruns no-ops.
+    // Payloads are validated against the same union so seeded history can never
+    // drift from what the app writes.
     // Candidates without `history` keep a bare timeline, and 13/14 get none at
     // all, so the empty state is reachable.
     if (person.history?.length) {
@@ -331,7 +332,7 @@ async function main() {
           candidateId,
           applicationId,
           type: "APPLICATION_CREATED",
-          payload: { source: person.source },
+          payload: activityPayloadSchema.parse({ type: "APPLICATION_CREATED", source: person.source }) && { source: person.source },
           createdAt: appliedAt,
         },
       });
@@ -346,7 +347,7 @@ async function main() {
             candidateId,
             applicationId,
             type: "STATUS_CHANGED",
-            payload: { from: person.history[step - 1], to: person.history[step] },
+            payload: activityPayloadSchema.parse({ type: "STATUS_CHANGED", from: person.history[step - 1], to: person.history[step] }) && { from: person.history[step - 1], to: person.history[step] },
             createdAt: new Date(appliedAt.getTime() + step * DAY),
           },
         });

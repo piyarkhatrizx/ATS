@@ -8,6 +8,7 @@ import { prisma } from "@/lib/prisma";
 import { downloadBuffer } from "@/lib/storage";
 import { normalizeEmail, normalizePhone } from "@/lib/inbound";
 import { intakeApplication } from "@/lib/intake";
+import { writeActivity } from "@/lib/activity/types";
 
 const nullableString = z.string().nullable();
 const parsedResumeSchema = z.object({
@@ -176,13 +177,13 @@ export async function processParseJob(parseJobId: string) {
           parsedAt: new Date(),
         },
       });
-      await transaction.activity.create({
-        data: {
-          candidateId: intake.candidateId,
-          applicationId: intake.applicationId,
-          type: "PARSED",
-          payload: { documentId: document.id },
-        },
+      // System write: the parser has no session, so actorId is null on purpose.
+      await writeActivity(transaction, {
+        candidateId: intake.candidateId,
+        applicationId: intake.applicationId,
+        type: "PARSED",
+        payload: { documentId: document.id },
+        actorId: null,
       });
     });
 

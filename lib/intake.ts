@@ -1,6 +1,7 @@
 import { Prisma, type ApplicationSource } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { normalizeEmail, normalizePhone } from "@/lib/inbound";
+import { writeActivity } from "@/lib/activity/types";
 
 export type IntakeInput = {
   jobId: string;
@@ -115,13 +116,13 @@ export async function intakeApplication(input: IntakeInput): Promise<IntakeResul
       applicationId = created.id;
     }
 
-    await transaction.activity.create({
-      data: {
-        candidateId: candidate.id,
-        applicationId,
-        type: priorApplication ? "REAPPLIED" : "APPLICATION_CREATED",
-        payload: { source: input.source },
-      },
+    // System write: actorId is explicitly null, not inherited from a session.
+    await writeActivity(transaction, {
+      candidateId: candidate.id,
+      applicationId,
+      type: priorApplication ? "REAPPLIED" : "APPLICATION_CREATED",
+      payload: { source: input.source },
+      actorId: null,
     });
 
     return {

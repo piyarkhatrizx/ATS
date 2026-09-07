@@ -221,6 +221,8 @@ model Activity {
   candidateId   String
   type         String
   payload      Json
+  body         String?
+  pinned       Boolean  @default(false)
   actorId      String?
   createdAt    DateTime @default(now())
   actor        User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)

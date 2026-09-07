@@ -92,9 +92,21 @@ Recorded, not acted on:
 - `DATABASE_URL` uses the Supabase **session pooler** (IPv4). `DIRECT_URL` uses
   the direct host, which is IPv6-only and will not resolve from most laptops or
   from CI.
-- `revalidatePath` throws outside a request context, and it runs *after* the
-  transaction commits. Never let it turn a committed write into a reported
-  failure.
+- Request-scoped Next APIs throw outside a request context, and some throw
+  SYNCHRONOUSLY — `auth()` reads `headers()`, so `auth().catch()` never runs and
+  only try/catch helps. This has now bitten three times: `after()`,
+  `revalidatePath` and `auth()`. `revalidatePath` is the worst of them because
+  it runs *after* the transaction commits, so an uncaught throw turns a
+  committed write into a reported failure and invites a retry of something that
+  already happened.
+- Every Activity row goes through `writeActivity` in `lib/activity/types.ts`,
+  which validates the payload against its variant before touching Prisma.
+  `Activity.type` stays a String column so legacy rows stay readable: strict on
+  write, lenient on read via `safeParseActivity`. Never write the table directly.
+- `actorId` is an explicit parameter on every action. Presence of the key is
+  what matters — an explicit `null` means a system wrote it (parser, webhook)
+  and must stay null; an omitted key resolves the session user. Collapsing those
+  with `??` misattributes machine writes to whoever triggered them.
 - Server actions return a discriminated result. They do not throw for expected
   failures, and a component must not require its caller to translate one into
   the other — that convention gets forgotten exactly once, and a failed write
