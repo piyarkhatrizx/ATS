@@ -45,6 +45,45 @@ in a page.
 - `withParam(query, key, value)` builds links that preserve the other params;
   changing any of them resets `page`.
 
+## A green vitest run does not prove a route loads
+
+Vitest does not use the RSC webpack bundler. `pdf-parse` and `mammoth` were
+mangled by that bundler at module load, so `lib/parser.ts` threw on import and
+every parse died — while 32 vitest tests stayed green throughout. The fix was
+`serverExternalPackages` in `next.config.ts`.
+
+Anything importing a native or CJS-heavy dependency must be exercised through a
+running Next server before it is called verified. Unit tests cannot see this
+class of failure.
+
+```
+npm run dev          # one terminal
+npm run check:ingest # another; CHECK_BASE_URL overrides the default origin
+```
+
+`scripts/check-ingest.ts` POSTs a real PDF and a real DOCX to
+`/api/inbound/postmark` with Basic auth, waits for each ParseJob to reach a
+terminal state, asserts the Candidate, Application and Document exist, then
+exercises `/api/parse/retry` the same way. Both formats are covered because
+pdf-parse and mammoth were mangled independently and either could regress alone.
+
+Nothing in it is mocked, deliberately — mocking S3 or Anthropic would recreate
+the false confidence it exists to eliminate. It therefore needs real
+`POSTMARK_WEBHOOK_*`, S3 and `ANTHROPIC_API_KEY` values, and reports which are
+missing rather than pretending to pass without them.
+
+## Density pass notes
+
+Recorded, not acted on:
+
+- `/applications` renders the three boolean screening columns as `Badge` at
+  roughly 110px each, plus an unbadged ~200px Opportunity column — about half of
+  the table's 1050px minimum width to carry four yes/no answers. Badges are
+  carrying semantic weight disproportionate to the information. Treatment
+  decision for the density pass.
+- List rows are ~47px, not the ~28px `py-1` implies, because the candidate cell
+  stacks name over email. About 12 fit above the fold at an 800px viewport.
+
 ## Gotchas that have already cost time
 
 - Non-component exports from a `"use client"` module become client references on

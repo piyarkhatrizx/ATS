@@ -163,6 +163,81 @@ const CANDIDATES: SeedCandidate[] = [
   },
 ];
 
+/**
+ * Apply-form volume, so /applications has enough rows to judge density against
+ * rather than six. Deterministic by index — no randomness anywhere, so reruns
+ * produce byte-identical data and the upserts stay no-ops.
+ */
+const BULK_NAMES: Array<[string, string]> = [
+  ["Ana", "Ko"],
+  ["Devontae", "Washington-Pierre"],
+  ["Mei", "Lin"],
+  ["Konstantinos", "Papadopoulos-Andreadis"],
+  ["Fatima", "Al-Rashid"],
+  ["Jo", "Ba"],
+  ["Reginald", "Thornbury"],
+  ["Nguyet", "Tran-Nguyen"],
+  ["Oluwaseun", "Adebayo-Ogundimu"],
+  ["Sam", "Roy"],
+  ["Ekaterina", "Vasilievna-Morozova"],
+  ["Tariq", "Hassan"],
+  ["Bernadette", "Lecompte-Rousseau"],
+  ["Kai", "Ng"],
+  ["Anastasia", "Christodoulopoulou"],
+  ["Marcus", "Webb"],
+  ["Yolanda", "Estefania-Marquez"],
+  ["Ib", "Oz"],
+  ["Sylvester", "Kirkpatrick-Boyle"],
+  ["Nadia", "Petrov"],
+  ["Chukwuemeka", "Nwachukwu-Obi"],
+  ["Ruth", "Mbeki"],
+  ["Alessandro", "Giovanni-Bellucci"],
+  ["Hye-Jin", "Park"],
+  ["Bartholomew", "Fitzgerald-Hughes"],
+  ["Zara", "Okafor"],
+];
+
+const BULK_STATUSES: ApplicationStatus[] = [
+  "NEW", "NEW", "SCREENING", "PHONE_SCREEN", "INTERVIEW", "SCREENING",
+  "REJECTED", "NEW", "OFFER", "SCREENING", "PHONE_SCREEN", "WITHDRAWN",
+  "NEW", "INTERVIEW", "SCREENING", "HIRED", "NEW", "PHONE_SCREEN",
+  "REJECTED", "SCREENING", "NEW", "INTERVIEW", "NEW", "SCREENING",
+  "PHONE_SCREEN", "NEW",
+];
+
+const BULK: SeedCandidate[] = BULK_NAMES.map(([firstName, lastName], index) => {
+  const key = String(15 + index).padStart(2, "0");
+  const slug = `${firstName}.${lastName}`.toLowerCase().replace(/[^a-z.]/g, "");
+  // Every 7th applicant is under 18 and every 5th skips the optional CPA
+  // question, so the columns carry a real spread instead of a wall of Yes.
+  const disqualified = index % 7 === 3;
+  const skippedOptional = index % 5 === 2;
+  return {
+    key,
+    firstName,
+    lastName,
+    email: `${slug}@example.com`,
+    // Every 9th has no phone, extending the disabled-Call-button case.
+    phone: index % 9 === 4 ? null : `(216) 555-${String(1000 + index * 7).slice(-4)}`,
+    location: index % 3 === 0 ? "Cleveland, OH" : index % 3 === 1 ? "Lakewood, OH" : null,
+    currentTitle: index % 4 === 0 ? "Home Health Aide" : index % 4 === 2 ? "CNA" : null,
+    currentEmployer: index % 4 === 0 ? "Bright Path Home Care" : null,
+    status: BULK_STATUSES[index],
+    source: "APPLY_FORM",
+    daysAgo: 1 + ((index * 3) % 34),
+    screening: {
+      isAtLeast18: !disqualified,
+      isCpaCertified: skippedOptional ? null : index % 3 === 0,
+      patientUsesMedicare: index % 2 === 0,
+      caregivingInterest:
+        index % 3 === 1 ? "CURRENTLY_CARING_FOR_PATIENT" : "GENERAL_CAREGIVER",
+    },
+    history: index % 4 === 1 ? ["NEW", BULK_STATUSES[index]] : undefined,
+  };
+});
+
+const ALL_CANDIDATES: SeedCandidate[] = [...CANDIDATES, ...BULK];
+
 async function main() {
   const caregiver = await prisma.job.upsert({
     where: { ingestAlias: CAREGIVER_ALIAS },
@@ -186,7 +261,7 @@ async function main() {
     },
   });
 
-  for (const person of CANDIDATES) {
+  for (const person of ALL_CANDIDATES) {
     const candidateId = `seed-cand-${person.key}`;
     const data = {
       firstName: person.firstName,
