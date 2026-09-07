@@ -196,3 +196,29 @@ summary:focus-visible,
 ::selection {
   background: var(--surface-selected);
 }
+
+/* ===========================================================================
+   Lead inbox grid. The header and every row share this one definition, so a
+   column cannot drift away from its heading.
+   =========================================================================== */
+.lead-grid {
+  display: grid;
+  grid-template-columns:
+    [name] minmax(0, 1fr)
+    [source] 7rem
+    [status] 8.5rem
+    [applied] 5.5rem
+    [actions] 8.5rem;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+@media (max-width: 720px) {
+  /* Source is the first column to go: status and age matter more on a phone. */
+  .lead-grid {
+    grid-template-columns: [name] minmax(0, 1fr) [status] 7rem [applied] 4rem [actions] 8rem;
+  }
+  .lead-grid > :nth-child(2) {
+    display: none;
+  }
+}

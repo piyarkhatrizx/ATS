@@ -14,6 +14,16 @@ export const PAGE_SIZE = 50;
 
 /** Sortable columns per view. Keys are the only values `sort=` may take. */
 export const SORT_KEYS = {
+  /**
+   * The inbox. Default is newest lead first, because the product goal is speed
+   * to first contact and the freshest lead is the one worth calling.
+   */
+  leads: {
+    appliedAt: { appliedAt: "desc" },
+    status: { statusRef: { order: "asc" } },
+    source: { source: "asc" },
+    name: { candidate: { lastName: "asc" } },
+  },
   applications: {
     appliedAt: { appliedAt: "desc" },
     status: { statusRef: { order: "asc" } },
@@ -31,12 +41,17 @@ export type ListView = keyof typeof SORT_KEYS;
 export type SortKey<V extends ListView> = keyof (typeof SORT_KEYS)[V] & string;
 
 const DEFAULT_SORT: { [V in ListView]: SortKey<V> } = {
+  leads: "appliedAt",
   applications: "appliedAt",
   candidates: "createdAt",
 };
 
 export type ParsedListParams<V extends ListView> = {
   source: ApplicationSource | null;
+  /** Scopes the inbox to one requisition. Carries /jobs/[id] bookmarks over. */
+  job: string | null;
+  /** Leads with no CALL_LOGGED event yet — the queue that matters. */
+  uncalled: boolean;
   /** A Status.key. Validated against the table by the caller, not here. */
   status: string | null;
   sort: SortKey<V>;
@@ -101,6 +116,12 @@ export function parseListParams<V extends ListView>(
   const dir = rawDir === "asc" || rawDir === "desc" ? rawDir : null;
   if (rawDir && !dir) rejected.push("dir");
 
+  const rawJob = first(params.job);
+  const job = rawJob && /^[A-Za-z0-9_-]{1,40}$/.test(rawJob) ? rawJob : null;
+  if (rawJob && !job) rejected.push("job");
+
+  const uncalled = first(params.uncalled) === "1";
+
   const rawPage = first(params.page);
   const parsedPage = Number(rawPage);
   const page = Number.isInteger(parsedPage) && parsedPage >= 1 ? parsedPage : 1;
@@ -117,6 +138,8 @@ export function parseListParams<V extends ListView>(
 
   return {
     source,
+    job,
+    uncalled,
     status,
     sort,
     dir: direction,

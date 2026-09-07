@@ -6,9 +6,9 @@ import { useState } from "react";
 import { SIDEBAR_COOKIE } from "@/lib/sidebar-cookie";
 
 const NAV = [
-  { href: "/", label: "Jobs", glyph: "J" },
-  { href: "/candidates", label: "Candidates", glyph: "C" },
-  { href: "/applications", label: "Applications", glyph: "A" },
+  { href: "/leads", label: "Leads", glyph: "L" },
+  { href: "/", label: "Requisitions", glyph: "R" },
+  { href: "/settings/statuses", label: "Settings", glyph: "S" },
   { href: "/design-system", label: "Design system", glyph: "D" },
 ];
 

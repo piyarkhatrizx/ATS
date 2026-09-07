@@ -40,6 +40,7 @@ async function resolveActor(input: ActorInput) {
 function revalidateCandidate(candidateId: string, jobId?: string | null) {
   try {
     revalidatePath(`/candidates/${candidateId}`);
+    revalidatePath("/leads");
     revalidatePath("/candidates");
     if (jobId) revalidatePath(`/jobs/${jobId}`);
     revalidatePath("/");
@@ -118,6 +119,46 @@ export async function logCall(
     // writeActivity throws on a payload that fails its variant.
     return { ok: false, error: "That call could not be logged." };
   }
+
+  revalidateCandidate(input.candidateId);
+  return { ok: true } as ActionResult;
+}
+
+/**
+ * Sends a lead to a client list.
+ *
+ * TODO: `destination` is free text. It needs a client-list foreign key once
+ * client records exist; KOROSHA.md records this under Known tradeoffs.
+ *
+ * Goes through writeActivity like every other state change, so the Phase 4
+ * audit still holds: one state change, exactly one event, no bypass path.
+ */
+export async function forwardLead(
+  input: {
+    candidateId: string;
+    applicationId?: string | null;
+    destination: string;
+    note?: string | null;
+  } & ActorInput,
+): Promise<ActionResult> {
+  const destination = input.destination?.trim();
+  if (!destination) return { ok: false, error: "Where should this go?" };
+  if (destination.length > 200) return { ok: false, error: "That destination is too long." };
+
+  const candidate = await prisma.candidate.findUnique({
+    where: { id: input.candidateId },
+    select: { id: true },
+  });
+  if (!candidate) return { ok: false, error: "That lead no longer exists." };
+
+  await writeActivity(prisma, {
+    candidateId: input.candidateId,
+    applicationId: input.applicationId ?? null,
+    type: "FORWARDED",
+    payload: { destination, note: input.note?.trim() || null },
+    actorId: await resolveActor(input),
+    body: input.note?.trim() || null,
+  });
 
   revalidateCandidate(input.candidateId);
   return { ok: true } as ActionResult;

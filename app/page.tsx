@@ -39,14 +39,14 @@ export default async function Home() {
           subtitle={`${jobs.length} active tracks · ${unroutedCount} unrouted`}
           actions={
             <Button asChild variant="secondary">
-              <Link href="/applications">Caregiver applications</Link>
+              <Link href="/leads?source=APPLY_FORM">Caregiver applications</Link>
             </Button>
           }
         />
         {forwarding.length > 0 && <section className="mt-[var(--space-6)] border border-[var(--accent-tint-line)] bg-[var(--accent-tint)] p-[var(--space-5)]"><SectionLabel>Gmail forwarding verification</SectionLabel><div className="mt-[var(--space-3)] flex flex-wrap items-center gap-x-[var(--space-8)] gap-y-[var(--space-2)]">{forwarding.map((verification) => <div key={verification.id}><span className="font-mono text-xl tracking-[0.14em]">{verification.code}</span><span className="ml-[var(--space-3)] text-xs text-[var(--ink-muted)]">{verification.createdAt.toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span></div>)}</div></section>}
         <section className="mt-[var(--space-10)] grid gap-[var(--space-4)] sm:grid-cols-2 lg:grid-cols-3">
           {jobs.map((job) => (
-            <Link key={job.id} href={`/jobs/${job.id}`} className="group block border border-[var(--glass-border)] k-glass p-[var(--space-5)] transition-colors hover:border-[var(--accent)]">
+            <Link key={job.id} href={`/leads?job=${job.id}`} className="group block border border-[var(--glass-border)] k-glass p-[var(--space-5)] transition-colors hover:border-[var(--accent)]">
               <div className="flex items-start justify-between gap-[var(--space-5)]">
                 <span className="font-mono text-xs text-[var(--foreground)]">{job.reqCode}</span>
                 <Badge tone={job.status === "OPEN" ? "success" : "neutral"}>{job.status.toLowerCase()}</Badge>
