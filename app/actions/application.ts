@@ -55,10 +55,17 @@ export async function moveApplicationStatus(
     }),
   ]);
 
-  revalidatePath(`/jobs/${application.jobId}`);
-  revalidatePath(`/candidates/${application.candidateId}`);
-  revalidatePath("/candidates");
-  revalidatePath("/");
+  // The write is already committed. revalidatePath throws outside a request
+  // context, and a stale cache must never be reported to the caller as a failed
+  // mutation — that would invite a retry of a move that already happened.
+  try {
+    revalidatePath(`/jobs/${application.jobId}`);
+    revalidatePath(`/candidates/${application.candidateId}`);
+    revalidatePath("/candidates");
+    revalidatePath("/");
+  } catch {
+    // No request scope (a script or a test). Nothing to revalidate.
+  }
 
   return { ok: true } as ActionResult;
 }

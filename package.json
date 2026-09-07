@@ -12,6 +12,7 @@
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
+    "seed": "tsx --env-file=.env prisma/seed.ts",
     "seed:caregiver-job": "tsx --env-file=.env scripts/seed-caregiver-job.ts",
     "migrate:caregivers": "tsx --env-file=.env scripts/migrate-caregiver-applications.ts"
   },
