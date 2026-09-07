@@ -11,12 +11,19 @@ import {
 import { prisma } from "@/lib/prisma";
 import { uploadBuffer } from "@/lib/storage";
 import { isAuthorized } from "@/lib/webhook-auth";
+import { isEnabled } from "@/lib/features";
 
 function fromAddress(payload: PostmarkInboundPayload) {
   return payload.FromFull?.Email ?? payload.From ?? "unknown";
 }
 
 export async function POST(request: Request) {
+  // v1 is apply-page intake only. 404 rather than 403: on the demo tier this
+  // endpoint does not exist as far as the outside world is concerned.
+  if (!isEnabled("emailIntake")) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
   if (!isAuthorized(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

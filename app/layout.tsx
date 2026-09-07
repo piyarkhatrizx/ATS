@@ -6,7 +6,7 @@ import { SIDEBAR_COOKIE } from "@/lib/sidebar-cookie";
 import { Toaster } from "@/components/ui/toast";
 
 export const metadata: Metadata = {
-  title: "Northstar ATS",
+  title: "Korosha",
   description: "Resume intake and recruiting pipeline",
 };
 

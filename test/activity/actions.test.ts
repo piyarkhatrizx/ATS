@@ -179,7 +179,7 @@ describeIntegration("activity actions and timeline", () => {
 
     // The joined Job came back in the same query, not an N+1.
     const withJob = timeline.entries.find((entry) => entry.row.application);
-    expect(withJob?.row.application?.job.title).toBeTruthy();
+    expect(withJob?.row.application?.job?.title).toBeTruthy();
   });
 
   it("pages without a gap or a duplicate at the boundary", async () => {

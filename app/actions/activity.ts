@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import type { ApplicationStatus } from "@prisma/client";
-import { auth } from "@/auth";
+import { getUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { APPLICATION_STATUSES } from "@/lib/application-status";
 import { normalizePhone } from "@/lib/inbound";
@@ -28,15 +28,10 @@ type ActorInput = { actorId?: string | null };
  */
 async function resolveActor(input: ActorInput) {
   if ("actorId" in input) return input.actorId ?? null;
-  try {
-    // auth() reads headers(), which THROWS SYNCHRONOUSLY outside a request
-    // scope — a .catch() on the returned promise never runs. Same family as
-    // revalidatePath and after(). An unattributable write is not a failed one.
-    const session = await auth();
-    return session?.user?.id ?? null;
-  } catch {
-    return null;
-  }
+  // getUser() owns the request-scope handling; an unattributable write is not
+  // a failed one, so a signed-out caller yields null rather than throwing.
+  const user = await getUser();
+  return user?.id ?? null;
 }
 
 /**

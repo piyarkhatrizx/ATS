@@ -48,7 +48,7 @@ export function AppSidebar({ initialCollapsed }: { initialCollapsed: boolean }) 
       <div className="flex items-center justify-between px-1 pb-2">
         {!collapsed && (
           <SectionLabel as="span" className="truncate">
-            Northstar
+            Korosha
           </SectionLabel>
         )}
         <button

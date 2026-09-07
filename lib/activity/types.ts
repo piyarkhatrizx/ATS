@@ -18,6 +18,8 @@ export const ACTIVITY_TYPES = [
   "EMAIL_RECEIVED",
   "CALL_LOGGED",
   "DOCUMENT_ATTACHED",
+  "FORWARDED",
+  "AUTO_REJECTED",
 ] as const;
 
 export type ActivityType = (typeof ACTIVITY_TYPES)[number];
@@ -80,6 +82,22 @@ export const activityPayloadSchema = z.discriminatedUnion("type", [
     type: z.literal("DOCUMENT_ATTACHED"),
     documentId: z.string(),
     filename: z.string().nullable(),
+  }),
+  // Sent to a client list. destination is free text for now; telephony and
+  // client records are later phases and should not force a shape yet.
+  z.object({
+    type: z.literal("FORWARDED"),
+    destination: z.string(),
+    note: z.string().nullable(),
+  }),
+  // Written when a rule rejects a submission. The lead keeps its record, and
+  // the row shows which rule fired and why.
+  z.object({
+    type: z.literal("AUTO_REJECTED"),
+    ruleId: z.string(),
+    ruleName: z.string(),
+    reason: z.string(),
+    questionKey: z.string(),
   }),
 ]);
 

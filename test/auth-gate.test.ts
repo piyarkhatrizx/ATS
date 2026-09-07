@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/prisma", () => ({ prisma: {} }));
 
-const { authorized } = await import("@/auth");
+const { authorized } = await import("@/lib/auth-config");
 const { config } = await import("@/middleware");
 
 /** The matcher is a raw negative-lookahead, so it can be checked directly. */

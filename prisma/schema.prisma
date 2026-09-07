@@ -129,15 +129,21 @@ model Candidate {
 model Application {
   id         String            @id @default(cuid())
   candidateId String
-  jobId      String
+  jobId      String?
   status     ApplicationStatus @default(NEW)
+  statusId   String?
   source     ApplicationSource @default(MANUAL)
   screening  Json?
   appliedAt  DateTime          @default(now())
+  autoRejectedRuleId String?
+  autoRejectedReason String?
+  firstCalledAt      DateTime?
   candidate  Candidate         @relation(fields: [candidateId], references: [id], onDelete: Cascade)
-  job        Job               @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  job        Job?              @relation(fields: [jobId], references: [id], onDelete: SetNull)
+  statusRef  Status?           @relation(fields: [statusId], references: [id], onDelete: SetNull)
   documents  Document[]
   activities Activity[]
+  formResponses FormResponse[]
 
   @@unique([candidateId, jobId])
   @@index([jobId, appliedAt])
@@ -213,6 +219,97 @@ model ForwardingVerification {
   createdAt   DateTime  @default(now())
   candidateId String?
   candidate   Candidate? @relation(fields: [candidateId], references: [id], onDelete: SetNull)
+}
+
+enum StatusCountsAs {
+  ACCEPTED
+  REJECTED
+  OPEN
+}
+
+/// User-editable pipeline stage. Replaces the ApplicationStatus enum in Phase 4;
+/// both exist during the transition so no application loses its state.
+model Status {
+  id         String         @id @default(cuid())
+  key        String         @unique
+  label      String
+  color      String
+  order      Int
+  isTerminal Boolean        @default(false)
+  countsAs   StatusCountsAs @default(OPEN)
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+  applications Application[]
+
+  @@index([order])
+}
+
+enum RuleOperator {
+  EQUALS
+  NOT_EQUALS
+  CONTAINS
+  IS_EMPTY
+  IS_TRUE
+  IS_FALSE
+}
+
+enum RuleAction {
+  REJECT
+  FLAG
+}
+
+/// A disqualifier evaluated once at submission. questionKey references a field
+/// key from the FormDefinition the submission came from.
+model Rule {
+  id           String       @id @default(cuid())
+  name         String
+  questionKey  String
+  operator     RuleOperator
+  value        String?
+  action       RuleAction   @default(REJECT)
+  reason       String
+  active       Boolean      @default(true)
+  priority     Int          @default(0)
+  formDefinitionId String?
+  formDefinition   FormDefinition? @relation(fields: [formDefinitionId], references: [id], onDelete: SetNull)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@index([active, priority])
+}
+
+/// JSON array of fields plus consent text. Powers the builder, the public apply
+/// page, and the export.
+model FormDefinition {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  name        String
+  fields      Json
+  consentText String
+  version     Int      @default(1)
+  published   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  rules       Rule[]
+  responses   FormResponse[]
+
+  @@index([published])
+}
+
+/// One submission. consentTextSnapshot is the exact text shown at the time,
+/// never a reference to the current version.
+model FormResponse {
+  id                  String   @id @default(cuid())
+  applicationId       String
+  formDefinitionId    String?
+  formVersion         Int?
+  answers             Json
+  consentTextSnapshot String
+  submittedAt         DateTime @default(now())
+  application         Application    @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  formDefinition      FormDefinition? @relation(fields: [formDefinitionId], references: [id], onDelete: SetNull)
+
+  @@index([applicationId])
 }
 
 model Activity {

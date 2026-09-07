@@ -22,6 +22,9 @@ export default async function Home() {
 
   const countsByJob = new Map<string, Map<string, number>>();
   for (const row of sourceCounts) {
+    // jobId is nullable now: leads can exist without a requisition, and those
+    // belong to no card on this page.
+    if (!row.jobId) continue;
     const forJob = countsByJob.get(row.jobId) ?? new Map<string, number>();
     forJob.set(row.source, row._count._all);
     countsByJob.set(row.jobId, forJob);

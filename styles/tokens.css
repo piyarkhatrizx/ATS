@@ -1,0 +1,91 @@
+/**
+ * Korosha palette. Black, white, light purple. Dark glassmorphism.
+ *
+ * Rules this file enforces by being the only source of color:
+ *   - Panels are dark. Purple appears only in ambient glows, borders, focus
+ *     rings and primary buttons. Purple is never a panel fill.
+ *   - Body text always sits on a dark surface, never directly on a glow.
+ *   - One blur layer per element. Never stack backdrop-filter.
+ *
+ * No hardcoded hex anywhere else in the codebase.
+ */
+
+:root {
+  /* Base ---------------------------------------------------------------- */
+  --black: #08070a;
+  --white: #ffffff;
+  --purple: #e1b9f0;
+
+  /* Surfaces: dark, layered from the page up to the raised panel ---------- */
+  --background: var(--black);
+  --surface: rgb(255 255 255 / 0.035);
+  --surface-raised: rgb(255 255 255 / 0.06);
+  --surface-sunken: rgb(0 0 0 / 0.28);
+  --surface-hover: rgb(255 255 255 / 0.07);
+  --surface-selected: rgb(225 185 240 / 0.1);
+
+  /* Glass: one blur layer per element ------------------------------------ */
+  --glass-blur: 14px;
+  --glass-bg: rgb(255 255 255 / 0.05);
+  --glass-border: rgb(255 255 255 / 0.1);
+
+  /* Text: always on a dark surface --------------------------------------- */
+  --foreground: #f4f2f6;
+  --ink-muted: #a09aa8;
+  --ink-faint: #6f6a78;
+  --on-accent: var(--black);
+
+  /* Purple, used only as an accent --------------------------------------- */
+  --accent: var(--purple);
+  --accent-strong: #edd4f7;
+  --accent-deep: #c99ada;
+  --accent-tint: rgb(225 185 240 / 0.14);
+  --line: rgb(255 255 255 / 0.1);
+  --line-strong: rgb(255 255 255 / 0.18);
+
+  /* Ambient background glows. Never place body text directly on these. ---- */
+  --glow-primary: rgb(225 185 240 / 0.22);
+  --glow-secondary: rgb(160 120 220 / 0.16);
+
+  /* Status colors. Seeded Status rows carry their own; these are the
+     fallbacks and the swatch set the settings picker offers. -------------- */
+  --status-open: #9fb4d8;
+  --status-active: #c9a9e8;
+  --status-accepted: #86d6ae;
+  --status-rejected: #e79a9a;
+  --status-neutral: var(--ink-muted);
+
+  --danger: #e56b6b;
+  --danger-strong: #f08a8a;
+
+  /* Type ------------------------------------------------------------------ */
+  --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif;
+  --font-mono-ui: "SF Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --text-xs: 0.6875rem;
+  --text-sm: 0.8125rem;
+  --text-md: 0.9375rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 2rem;
+
+  /* Depth ----------------------------------------------------------------- */
+  --shadow-panel: 0 12px 40px rgb(0 0 0 / 0.5), 0 2px 8px rgb(0 0 0 / 0.35);
+  --shadow-dialog: 0 32px 90px rgb(0 0 0 / 0.65), 0 4px 20px rgb(0 0 0 / 0.4);
+  --shadow-focus: 0 0 0 3px rgb(225 185 240 / 0.3);
+
+  /* Motion ---------------------------------------------------------------- */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --duration-press: 140ms;
+  --duration-popover: 180ms;
+  --duration-drawer: 260ms;
+}
+
+/* Korosha is a dark product. The light-mode block is deliberately absent:
+   there is one look, and forcing it keeps contrast guarantees intact. */
+:root {
+  color-scheme: dark;
+}

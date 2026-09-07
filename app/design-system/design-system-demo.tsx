@@ -134,7 +134,7 @@ export default function DesignSystemDemo() {
     <main className="min-h-screen px-6 py-8">
       <div className="mx-auto max-w-5xl space-y-8">
         <PageHeader
-          eyebrow="Northstar ATS"
+          eyebrow="Korosha"
           title="Component reference"
           subtitle="Every component in every state. Density first: this is a tool a recruiter keeps open all day, not a landing page."
         />

@@ -1,4 +1,4 @@
-import { signIn } from "@/auth";
+import { signIn } from "@/lib/auth";
 
 export default async function LoginPage({ searchParams }: PageProps<"/login">) {
   const { error } = await searchParams;
@@ -7,7 +7,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
     <main className="flex min-h-screen items-center justify-center px-6">
       <div className="w-full max-w-sm">
         <p className="text-xs uppercase tracking-[0.16em] text-[var(--ink-muted)]">
-          Northstar ATS
+          Korosha
         </p>
         <h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em]">Sign in</h1>
         <p className="mt-2 text-sm text-[var(--ink-muted)]">

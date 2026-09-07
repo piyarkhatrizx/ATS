@@ -18,6 +18,14 @@ describe("activity payload variants", () => {
       { type: "EMAIL_SENT", subject: "Hello", messageId: null },
       { type: "EMAIL_RECEIVED", subject: null, messageId: "m_1" },
       { type: "DOCUMENT_ATTACHED", documentId: "doc_2", filename: "cv.pdf" },
+      { type: "FORWARDED", destination: "client-list@example.com", note: null },
+      {
+        type: "AUTO_REJECTED",
+        ruleId: "r_1",
+        ruleName: "Not caring for a Medicaid patient",
+        reason: "Lead is not caring for a Medicaid patient",
+        questionKey: "patientUsesMedicaid",
+      },
       {
         type: "CALL_LOGGED",
         direction: "OUTBOUND",

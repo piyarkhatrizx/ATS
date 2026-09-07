@@ -2,11 +2,16 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { processParseJob } from "@/lib/parser";
 import { isAuthorized } from "@/lib/webhook-auth";
+import { isEnabled } from "@/lib/features";
 
 const MAX_ATTEMPTS = 3;
 
 /** Safety net for anything `after` dropped: rerun stalled or failed parse jobs. */
 export async function GET(request: Request) {
+  if (!isEnabled("resumeParsing")) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
   if (!isAuthorized(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

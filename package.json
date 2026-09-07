@@ -1,5 +1,5 @@
 {
-  "name": "ats-app",
+  "name": "korosha",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -10,10 +10,12 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "db:generate": "prisma generate",
-    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate deploy",
+    "db:migrate:new": "prisma migrate diff --from-schema-datasource prisma/schema.prisma --to-schema-datamodel prisma/schema.prisma --script",
     "db:studio": "prisma studio",
     "check:ingest": "tsx --env-file=.env scripts/check-ingest.ts",
     "seed": "tsx --env-file=.env prisma/seed.ts",
+    "seed:statuses": "tsx --env-file=.env prisma/seed-statuses.ts",
     "seed:caregiver-job": "tsx --env-file=.env scripts/seed-caregiver-job.ts"
   },
   "dependencies": {

@@ -1,4 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+
+// Email intake is gated to tier v2; these tests exercise it directly.
+process.env.KOROSHA_TIER = "v2";
 import fixture from "@/test/fixtures/postmark-resume.json";
 
 vi.mock("@/lib/storage", () => ({

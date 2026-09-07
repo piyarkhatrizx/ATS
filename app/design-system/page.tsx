@@ -1,8 +1,8 @@
 import DesignSystemDemo from "./design-system-demo";
 
 export const metadata = {
-  title: "Design system | Northstar ATS",
-  description: "Northstar ATS component and token reference.",
+  title: "Design system | Korosha",
+  description: "Korosha component and token reference.",
 };
 
 export default function DesignSystemPage() {

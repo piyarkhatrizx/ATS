@@ -2,7 +2,7 @@ import ApplyForm from "@/app/apply/apply-form";
 import { SectionLabel } from "@/components/ui/section-label";
 
 export const metadata = {
-  title: "Caregiver application | Northstar",
+  title: "Caregiver application | Korosha",
   description: "Apply for a caregiver opportunity.",
 };
 
@@ -12,7 +12,7 @@ export default function ApplyPage() {
       <div className="mx-auto grid max-w-6xl overflow-hidden border border-[var(--line)] bg-[var(--surface)] lg:grid-cols-[0.78fr_1.22fr]">
         <section className="flex min-h-72 flex-col justify-between bg-[var(--surface-sidebar)] p-7 text-[var(--on-sidebar)] sm:p-10 lg:min-h-[680px]">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--on-sidebar-accent)]">Northstar care team</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--on-sidebar-accent)]">Korosha care team</p>
             <h1 className="mt-16 max-w-sm text-4xl font-semibold leading-[1.05] tracking-[-0.045em] sm:text-5xl">Your care work matters.</h1>
             <p className="mt-6 max-w-sm text-sm leading-7 text-[var(--on-sidebar-muted)]">Tell us a little about your experience and the kind of caregiver opportunity you are looking for.</p>
           </div>

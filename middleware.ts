@@ -1,4 +1,4 @@
-export { auth as middleware } from "@/auth";
+export { auth as middleware } from "@/lib/auth-config";
 
 export const config = {
   // Auth.js sessions live in Postgres via the Prisma adapter, which cannot run
@@ -17,7 +17,9 @@ export const config = {
   //                      auth as the webhook, and a 302 would silently break
   //                      the parse-queue safety net rather than error loudly.
   //   api/health       - probes run without a session by definition.
+  //   api/dev-login    - mints a development session; refuses in production,
+  //                      and gating it would make it unreachable.
   matcher: [
-    "/((?!login|api/auth|apply|api/apply|api/inbound|api/parse/retry|api/health|_next/static|_next/image|favicon.ico).*)",
+    "/((?!login|api/auth|apply|api/apply|api/inbound|api/parse/retry|api/health|api/dev-login|_next/static|_next/image|favicon.ico).*)",
   ],
 };
