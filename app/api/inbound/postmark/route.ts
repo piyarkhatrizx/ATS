@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { Prisma } from "@prisma/client";
 import {
   extractForwardingCode,
@@ -9,17 +9,9 @@ import {
   type PostmarkInboundPayload,
 } from "@/lib/inbound";
 import { prisma } from "@/lib/prisma";
+import { drainParseJobs } from "@/lib/parser";
 import { uploadBuffer } from "@/lib/storage";
-
-function isAuthorized(request: Request) {
-  const expectedUser = process.env.POSTMARK_WEBHOOK_USERNAME;
-  const expectedPassword = process.env.POSTMARK_WEBHOOK_PASSWORD;
-  const header = request.headers.get("authorization");
-  if (!expectedUser || !expectedPassword || !header?.startsWith("Basic ")) return false;
-
-  const decoded = Buffer.from(header.slice(6), "base64").toString("utf8");
-  return decoded === `${expectedUser}:${expectedPassword}`;
-}
+import { isAuthorized } from "@/lib/webhook-auth";
 
 function fromAddress(payload: PostmarkInboundPayload) {
   return payload.FromFull?.Email ?? payload.From ?? "unknown";
@@ -109,6 +101,7 @@ export async function POST(request: Request) {
       data: { jobId: job.id },
     });
 
+    const parseJobIds: string[] = [];
     for (const attachment of payload.Attachments ?? []) {
       if (!isResumeAttachment(attachment)) continue;
       const buffer = Buffer.from(attachment.Content, "base64");
@@ -122,7 +115,18 @@ export async function POST(request: Request) {
           sizeBytes: buffer.byteLength,
         },
       });
-      await prisma.parseJob.create({ data: { documentId: document.id, jobId: job.id } });
+      const parseJob = await prisma.parseJob.create({ data: { documentId: document.id, jobId: job.id } });
+      parseJobIds.push(parseJob.id);
+    }
+
+    if (parseJobIds.length) {
+      try {
+        after(() => drainParseJobs(parseJobIds));
+      } catch {
+        // Outside a request scope `after` is unavailable. The jobs stay QUEUED
+        // and GET /api/parse/retry drains them; never fail the webhook for this.
+        console.warn("Could not schedule background parsing", parseJobIds.length);
+      }
     }
 
     return NextResponse.json({ accepted: true, routed: true });

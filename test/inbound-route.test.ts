@@ -24,7 +24,7 @@ vi.mock("@/lib/prisma", () => ({
         return record;
       }),
       update: vi.fn(),
-      delete: vi.fn(),
+      delete: vi.fn(async () => undefined),
     },
     job: { findUnique: vi.fn(async () => ({ id: "job-1", ingestAlias: "eng-042" })) },
     document: {
@@ -34,7 +34,7 @@ vi.mock("@/lib/prisma", () => ({
         return record;
       }),
     },
-    parseJob: { create: vi.fn(async ({ data }: { data: { documentId: string; jobId: string } }) => { state.parseJobs.push(data); }) },
+    parseJob: { create: vi.fn(async ({ data }: { data: { documentId: string; jobId: string } }) => { state.parseJobs.push(data); return { id: `parse-job-${state.parseJobs.length}`, ...data }; }) },
     forwardingVerification: { upsert: vi.fn() },
     unroutedEmail: { create: vi.fn() },
   },

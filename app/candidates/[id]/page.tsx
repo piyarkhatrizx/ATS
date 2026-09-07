@@ -3,19 +3,9 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
+import { statusTone } from "@/lib/application-status";
 
 export const dynamic = "force-dynamic";
-
-const statusTone = {
-  NEW: "new",
-  SCREENING: "screening",
-  PHONE_SCREEN: "phone",
-  INTERVIEW: "interview",
-  OFFER: "offer",
-  HIRED: "hired",
-  REJECTED: "rejected",
-  WITHDRAWN: "withdrawn",
-} as const;
 
 export default async function CandidatePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

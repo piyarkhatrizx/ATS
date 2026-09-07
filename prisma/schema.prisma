@@ -43,6 +43,13 @@ enum CaregivingInterest {
   CURRENTLY_CARING_FOR_PATIENT
 }
 
+enum ApplicationSource {
+  APPLY_FORM
+  EMAIL
+  REFERRAL
+  MANUAL
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -145,7 +152,8 @@ model Application {
   candidateId String
   jobId      String
   status     ApplicationStatus @default(NEW)
-  source     String?
+  source     ApplicationSource @default(MANUAL)
+  screening  Json?
   appliedAt  DateTime          @default(now())
   candidate  Candidate         @relation(fields: [candidateId], references: [id], onDelete: Cascade)
   job        Job               @relation(fields: [jobId], references: [id], onDelete: Cascade)
@@ -155,6 +163,8 @@ model Application {
   @@unique([candidateId, jobId])
   @@index([jobId, appliedAt])
   @@index([status])
+  @@index([source, appliedAt])
+  @@index([jobId, source])
 }
 
 model Document {

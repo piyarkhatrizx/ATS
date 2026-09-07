@@ -1,6 +1,49 @@
 import type { SelectHTMLAttributes } from "react";
+import { Field, controlClass, describedBy } from "./field";
 
-export function Select({ label, children, className = "", id, ...props }: SelectHTMLAttributes<HTMLSelectElement> & { label?: string }) {
+export type SelectProps = SelectHTMLAttributes<HTMLSelectElement> & {
+  label?: string;
+  hint?: string;
+  error?: string;
+  fieldClassName?: string;
+};
+
+/**
+ * The native select on purpose: it is keyboard- and screen-reader-correct for
+ * free, opens as a platform menu, and type-ahead already works. Use the
+ * DropdownMenu only when the options need custom rendering (see StatusSelect).
+ */
+export function Select({
+  label,
+  hint,
+  error,
+  children,
+  className = "",
+  fieldClassName = "",
+  id,
+  ...props
+}: SelectProps) {
   const selectId = id ?? props.name;
-  return <label className="block text-sm font-medium" htmlFor={selectId}>{label}{props.required && <span className="ml-1 text-[var(--accent-deep)]">*</span>}<select id={selectId} className={`mt-2 block h-11 w-full border border-[var(--line)] bg-[#fbfaf6] px-3 text-sm font-normal focus:border-[var(--accent)] focus:shadow-[var(--shadow-focus)] ${className}`} {...props}>{children}</select></label>;
+
+  return (
+    <Field
+      id={selectId}
+      label={label}
+      hint={hint}
+      error={error}
+      required={props.required}
+      disabled={props.disabled}
+      className={fieldClassName}
+    >
+      <select
+        id={selectId}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={describedBy(selectId, hint, error)}
+        className={`${controlClass(Boolean(error))} pr-7 ${className}`}
+        {...props}
+      >
+        {children}
+      </select>
+    </Field>
+  );
 }

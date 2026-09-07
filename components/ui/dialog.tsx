@@ -1,10 +1,78 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import * as RadixDialog from "@radix-ui/react-dialog";
 import type { ReactNode } from "react";
 
-export function Dialog({ open, onOpenChange, title, description, children }: { open: boolean; onOpenChange: (open: boolean) => void; title: string; description?: string; children: ReactNode }) {
-  const ref = useRef<HTMLDialogElement>(null);
-  useEffect(() => { const dialog = ref.current; if (!dialog) return; if (open && !dialog.open) dialog.showModal(); if (!open && dialog.open) dialog.close(); }, [open]);
-  return <dialog ref={ref} className="ui-dialog m-auto w-[min(92vw,32rem)] border border-[var(--line)] bg-[#fbfaf6] p-0 text-[var(--foreground)] shadow-[var(--shadow-dialog)]" onCancel={() => onOpenChange(false)} onClose={() => onOpenChange(false)} onClick={(event) => { if (event.target === event.currentTarget) onOpenChange(false); }}><div className="p-6 sm:p-8"><div className="flex items-start justify-between gap-5"><div><h2 className="text-xl font-semibold tracking-[-0.03em]">{title}</h2>{description && <p className="mt-2 text-sm leading-6 text-[var(--ink-muted)]">{description}</p>}</div><button type="button" aria-label="Close dialog" className="text-xl leading-none text-[var(--ink-muted)] hover:text-[var(--foreground)]" onClick={() => onOpenChange(false)}>×</button></div><div className="mt-6">{children}</div></div></dialog>;
+/**
+ * Radix Dialog handles the parts that are easy to get subtly wrong: focus trap,
+ * focus restore to the trigger, Escape, scroll lock, aria-modal wiring, and
+ * inert-ing the rest of the page. Motion lives in globals.css (.ui-scrim /
+ * .ui-dialog-panel) so it runs off the main thread.
+ */
+export function Dialog({
+  open,
+  onOpenChange,
+  title,
+  description,
+  footer,
+  children,
+  className = "",
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  title: string;
+  description?: string;
+  footer?: ReactNode;
+  children?: ReactNode;
+  className?: string;
+}) {
+  return (
+    <RadixDialog.Root open={open} onOpenChange={onOpenChange}>
+      <RadixDialog.Portal>
+        <RadixDialog.Overlay className="ui-scrim fixed inset-0 z-40 bg-[var(--scrim)]" />
+        {/* Centering lives on the wrapper so the enter/exit keyframe owns
+            `transform` outright and never fights a translate utility. */}
+        <div className="pointer-events-none fixed inset-0 z-50 grid place-items-center p-4">
+        <RadixDialog.Content
+          className={`ui-dialog-panel pointer-events-auto w-[min(92vw,32rem)] border border-[var(--line)] bg-[var(--surface)] text-[var(--foreground)] shadow-[var(--shadow-dialog)] ${className}`}
+        >
+          <div className="flex items-start justify-between gap-4 border-b border-[var(--line)] px-5 py-3">
+            <div className="min-w-0">
+              <RadixDialog.Title className="text-[var(--text-lg)] font-semibold tracking-[-0.02em]">
+                {title}
+              </RadixDialog.Title>
+              {description ? (
+                <RadixDialog.Description className="mt-1 text-[var(--text-sm)] leading-relaxed text-[var(--ink-muted)]">
+                  {description}
+                </RadixDialog.Description>
+              ) : (
+                <RadixDialog.Description className="sr-only">{title}</RadixDialog.Description>
+              )}
+            </div>
+            <DialogClose />
+          </div>
+          <div className="px-5 py-4">{children}</div>
+          {footer && (
+            <div className="flex items-center justify-end gap-2 border-t border-[var(--line)] bg-[var(--surface-header)] px-5 py-3">
+              {footer}
+            </div>
+          )}
+        </RadixDialog.Content>
+        </div>
+      </RadixDialog.Portal>
+    </RadixDialog.Root>
+  );
 }
+
+export function DialogClose({ label = "Close" }: { label?: string }) {
+  return (
+    <RadixDialog.Close
+      aria-label={label}
+      className="ui-button -mr-1 flex h-7 w-7 shrink-0 items-center justify-center text-[var(--text-lg)] leading-none text-[var(--ink-muted)] hover:bg-[var(--surface-hover)] hover:text-[var(--foreground)]"
+    >
+      <span aria-hidden="true">×</span>
+    </RadixDialog.Close>
+  );
+}
+
+export const DialogTrigger = RadixDialog.Trigger;

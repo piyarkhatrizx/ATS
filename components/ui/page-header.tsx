@@ -1,0 +1,66 @@
+import Link from "next/link";
+import type { ReactNode } from "react";
+import { SectionLabel } from "./section-label";
+
+export type Crumb = { label: string; href?: string };
+
+/**
+ * The one header every route uses. Chrome stays quiet: a single row of title
+ * plus actions, so the content starts near the top of the viewport instead of
+ * a screenful down.
+ */
+export function PageHeader({
+  title,
+  subtitle,
+  eyebrow,
+  breadcrumb,
+  actions,
+  className = "",
+}: {
+  title: ReactNode;
+  subtitle?: ReactNode;
+  eyebrow?: ReactNode;
+  breadcrumb?: Crumb[];
+  actions?: ReactNode;
+  className?: string;
+}) {
+  return (
+    <header className={`border-b border-[var(--line)] pb-3 ${className}`}>
+      {breadcrumb && breadcrumb.length > 0 && (
+        <nav aria-label="Breadcrumb" className="mb-1">
+          <ol className="flex flex-wrap items-center gap-1 text-xs text-[var(--ink-muted)]">
+            {breadcrumb.map((crumb, index) => (
+              <li key={`${crumb.label}-${index}`} className="flex items-center gap-1">
+                {crumb.href ? (
+                  <Link
+                    href={crumb.href}
+                    className="text-[var(--accent-deep)] hover:underline underline-offset-2"
+                  >
+                    {crumb.label}
+                  </Link>
+                ) : (
+                  <span aria-current="page">{crumb.label}</span>
+                )}
+                {index < breadcrumb.length - 1 && (
+                  <span aria-hidden="true" className="text-[var(--line)]">
+                    /
+                  </span>
+                )}
+              </li>
+            ))}
+          </ol>
+        </nav>
+      )}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="min-w-0">
+          {eyebrow && <SectionLabel>{eyebrow}</SectionLabel>}
+          <h1 className="truncate text-xl font-semibold tracking-[-0.02em]">{title}</h1>
+          {subtitle && (
+            <p className="mt-0.5 text-sm text-[var(--ink-muted)]">{subtitle}</p>
+          )}
+        </div>
+        {actions && <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}
+      </div>
+    </header>
+  );
+}

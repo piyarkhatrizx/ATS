@@ -164,3 +164,150 @@ summary:focus-visible {
 ::selection {
   background: #f2c7b4;
 }
+
+/* ============================================================
+   Component-layer tokens (additive — foundation above unchanged)
+   Every value below is derived from an existing token so a single
+   palette edit still propagates. color-mix resolves lazily, so the
+   prefers-contrast overrides above flow through automatically.
+   ============================================================ */
+
+:root {
+  /* Neutral surfaces: rows, chips, ghost-button hover, table header */
+  --surface-sunken: color-mix(in oklab, var(--foreground) 6%, var(--background));
+  --surface-hover: color-mix(in oklab, var(--foreground) 5%, var(--surface));
+  --surface-header: color-mix(in oklab, var(--foreground) 3%, var(--surface));
+  --surface-selected: color-mix(in oklab, var(--accent) 12%, var(--surface));
+  --surface-selected-line: color-mix(in oklab, var(--accent) 34%, var(--surface));
+
+  /* Accent ramp */
+  --accent-strong: color-mix(in oklab, var(--accent-deep) 84%, var(--foreground));
+  --accent-tint: color-mix(in oklab, var(--accent) 8%, var(--surface));
+  --accent-tint-line: color-mix(in oklab, var(--accent) 32%, var(--surface));
+  --on-accent: #ffffff;
+
+  /* Destructive */
+  --danger: var(--status-rejected);
+  --danger-strong: color-mix(in oklab, var(--status-rejected) 82%, var(--foreground));
+  --danger-tint: color-mix(in oklab, var(--status-rejected) 10%, var(--surface));
+
+  /* Status tints — badge/chip fills and hairlines, derived from --status-* */
+  --status-new-tint: color-mix(in oklab, var(--status-new) 12%, var(--surface));
+  --status-new-line: color-mix(in oklab, var(--status-new) 34%, var(--surface));
+  --status-screening-tint: color-mix(in oklab, var(--status-screening) 12%, var(--surface));
+  --status-screening-line: color-mix(in oklab, var(--status-screening) 34%, var(--surface));
+  --status-phone-tint: color-mix(in oklab, var(--status-phone) 12%, var(--surface));
+  --status-phone-line: color-mix(in oklab, var(--status-phone) 34%, var(--surface));
+  --status-interview-tint: color-mix(in oklab, var(--status-interview) 12%, var(--surface));
+  --status-interview-line: color-mix(in oklab, var(--status-interview) 34%, var(--surface));
+  --status-offer-tint: color-mix(in oklab, var(--status-offer) 12%, var(--surface));
+  --status-offer-line: color-mix(in oklab, var(--status-offer) 34%, var(--surface));
+  --status-hired-tint: color-mix(in oklab, var(--status-hired) 12%, var(--surface));
+  --status-hired-line: color-mix(in oklab, var(--status-hired) 34%, var(--surface));
+  --status-rejected-tint: color-mix(in oklab, var(--status-rejected) 12%, var(--surface));
+  --status-rejected-line: color-mix(in oklab, var(--status-rejected) 34%, var(--surface));
+  --status-withdrawn-tint: color-mix(in oklab, var(--status-withdrawn) 12%, var(--surface));
+  --status-withdrawn-line: color-mix(in oklab, var(--status-withdrawn) 34%, var(--surface));
+
+  /* Avatar fallback */
+  --avatar-tint: color-mix(in oklab, var(--status-interview) 16%, var(--surface));
+  --avatar-ink: color-mix(in oklab, var(--status-interview) 72%, var(--foreground));
+
+  /* Foreground colors for the dark sidebar material */
+  --on-sidebar: var(--background);
+  --on-sidebar-muted: color-mix(in oklab, var(--background) 74%, var(--surface-sidebar));
+  --on-sidebar-faint: color-mix(in oklab, var(--background) 56%, var(--surface-sidebar));
+  --on-sidebar-accent: color-mix(in oklab, var(--accent) 62%, var(--background));
+
+  /* Dense list metrics: 28px rows keep ~25 candidates on a laptop screen */
+  --row-height: 1.75rem;
+  --duration-exit: 120ms;
+}
+
+/* Toolbars / sticky table headers that float over scrolling content.
+   Scroll-edge shadow instead of a hard 1px divider (Apple: materials). */
+.ui-sticky-head {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--surface-header);
+  box-shadow: 0 1px 0 var(--line), 0 6px 12px -12px rgb(24 34 31 / 0.5);
+}
+
+/* Overlay motion for the Radix-driven Dialog / SlideOver / DropdownMenu.
+   Enter and exit both use ease-out so movement starts on the frame the user
+   acts; the exit is simply shorter. Explicit -out keyframes instead of
+   `direction: reverse`, so the curve a reader sees is the curve that plays.
+   List rows deliberately have no transition at all: a recruiter crosses
+   hundreds of rows an hour and a fading hover tint lags behind the pointer. */
+.ui-scrim[data-state="open"] {
+  animation: ui-backdrop-in var(--duration-popover) ease-out;
+}
+
+.ui-scrim[data-state="closed"] {
+  animation: ui-backdrop-out var(--duration-exit) ease-out;
+}
+
+.ui-dialog-panel[data-state="open"] {
+  animation: ui-dialog-in var(--duration-popover) var(--ease-out);
+}
+
+.ui-dialog-panel[data-state="closed"] {
+  animation: ui-dialog-out var(--duration-exit) var(--ease-out);
+}
+
+/* Spatial consistency: the panel leaves along the edge it arrived from. */
+.ui-slide-panel[data-state="open"] {
+  animation: ui-slide-in var(--duration-drawer) var(--ease-drawer);
+}
+
+.ui-slide-panel[data-state="closed"] {
+  animation: ui-slide-out 180ms var(--ease-drawer);
+}
+
+/* Menus scale from their trigger, not their center. */
+.ui-menu {
+  transform-origin: var(--radix-dropdown-menu-content-transform-origin, center);
+}
+
+.ui-menu[data-state="open"] {
+  animation: ui-menu-in 140ms var(--ease-out);
+}
+
+.ui-menu[data-state="closed"] {
+  animation: ui-menu-out var(--duration-exit) var(--ease-out);
+}
+
+@keyframes ui-menu-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes ui-menu-out {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(0.96); }
+}
+
+@keyframes ui-backdrop-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes ui-dialog-out {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(0.97); }
+}
+
+@keyframes ui-slide-out {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-scrim[data-state],
+  .ui-dialog-panel[data-state],
+  .ui-slide-panel[data-state],
+  .ui-menu[data-state] {
+    animation-duration: 1ms;
+  }
+}

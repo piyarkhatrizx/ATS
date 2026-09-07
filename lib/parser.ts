@@ -6,11 +6,8 @@ import { z } from "zod";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { downloadBuffer } from "@/lib/storage";
-import {
-  findDedupeMatch,
-  normalizeEmail,
-  type DedupeRecord,
-} from "@/lib/inbound";
+import { normalizeEmail, normalizePhone } from "@/lib/inbound";
+import { intakeApplication } from "@/lib/intake";
 
 const nullableString = z.string().nullable();
 const parsedResumeSchema = z.object({
@@ -113,28 +110,33 @@ export async function parseResumeText(text: string): Promise<ParsedResume> {
   return parseModelJson(output.text);
 }
 
-async function findExistingCandidate(parsed: ParsedResume) {
-  const candidates = await prisma.candidate.findMany({
-    where: { OR: [{ email: { not: null } }, { phone: { not: null } }] },
-    select: { id: true, email: true, phone: true },
-  });
-  return findDedupeMatch(
-    { id: "parsed", email: parsed.email, phone: parsed.phone } satisfies DedupeRecord,
-    candidates,
-  );
-}
-
 function candidateData(parsed: ParsedResume) {
   return {
     firstName: parsed.firstName,
     lastName: parsed.lastName,
     email: normalizeEmail(parsed.email),
-    phone: parsed.phone,
+    phone: normalizePhone(parsed.phone),
     location: parsed.location,
     currentTitle: parsed.currentTitle,
     currentEmployer: parsed.currentEmployer,
     linkedinUrl: parsed.linkedinUrl,
   };
+}
+
+/** Parse after responding so Postmark never waits, and one bad resume never blocks the rest. */
+export async function drainParseJobs(parseJobIds: string[]) {
+  for (const parseJobId of parseJobIds) {
+    try {
+      await processParseJob(parseJobId);
+    } catch (error) {
+      // No candidate PII here — the parse job id is the only handle we log.
+      console.error(
+        "Parse job failed",
+        parseJobId,
+        error instanceof Error ? error.message.slice(0, 200) : "Unknown error",
+      );
+    }
+  }
 }
 
 export async function processParseJob(parseJobId: string) {
@@ -155,43 +157,37 @@ export async function processParseJob(parseJobId: string) {
       parsed = await parseResumeText(text);
     }
 
-    const existing = await findExistingCandidate(parsed);
-    const candidate = await prisma.$transaction(async (transaction) => {
-      const record = existing
-        ? await transaction.candidate.update({ where: { id: existing.id }, data: candidateData(parsed) })
-        : await transaction.candidate.create({ data: candidateData(parsed) });
+    // Candidate and Application come from the shared intake path, never from here.
+    const intake = await intakeApplication({
+      jobId: job.jobId,
+      source: "EMAIL",
+      ...candidateData(parsed),
+    });
+
+    await prisma.$transaction(async (transaction) => {
       const document = await transaction.document.update({
         where: { id: job.documentId },
         data: {
-          candidateId: record.id,
+          candidateId: intake.candidateId,
+          applicationId: intake.applicationId,
           extractedText: text,
           parsedData: parsed as unknown as Prisma.InputJsonValue,
           parseStatus: "COMPLETE",
           parsedAt: new Date(),
         },
       });
-      const finalApplication = job.document.applicationId
-        ? await transaction.application.update({
-            where: { id: job.document.applicationId },
-            data: { candidateId: record.id },
-          })
-        : await transaction.application.upsert({
-            where: { candidateId_jobId: { candidateId: record.id, jobId: job.jobId } },
-            update: {},
-            create: { candidateId: record.id, jobId: job.jobId, source: "email" },
-          });
       await transaction.activity.create({
         data: {
-          candidateId: record.id,
-          applicationId: finalApplication.id,
+          candidateId: intake.candidateId,
+          applicationId: intake.applicationId,
           type: "PARSED",
           payload: { documentId: document.id },
         },
       });
-      return record;
     });
+
     await prisma.parseJob.update({ where: { id: job.id }, data: { status: "COMPLETE" } });
-    return candidate;
+    return prisma.candidate.findUniqueOrThrow({ where: { id: intake.candidateId } });
   } catch (error) {
     await prisma.document.update({ where: { id: job.documentId }, data: { parseStatus: "FAILED" } });
     await prisma.parseJob.update({

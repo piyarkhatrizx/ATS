@@ -37,7 +37,7 @@ export default async function CaregiverApplicationsPage() {
           </div>
           <div className="flex items-center gap-4">
             <span className="text-sm text-[var(--ink-muted)]">{applications.length} received</span>
-            <Link href="/apply" className="ui-button inline-flex h-10 items-center justify-center border border-transparent bg-[var(--accent-deep)] px-4 text-xs font-semibold uppercase tracking-[0.12em] text-white hover:bg-[#7d3d27]">Open application</Link>
+            <Link href="/apply" className="ui-button inline-flex h-10 items-center justify-center border border-transparent bg-[var(--accent-deep)] px-4 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--on-accent)] hover:bg-[var(--accent-strong)]">Open application</Link>
           </div>
         </header>
 

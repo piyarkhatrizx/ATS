@@ -1,10 +1,67 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import * as RadixDialog from "@radix-ui/react-dialog";
 import type { ReactNode } from "react";
+import { DialogClose } from "./dialog";
 
-export function SlideOver({ open, onOpenChange, title, eyebrow, children }: { open: boolean; onOpenChange: (open: boolean) => void; title: string; eyebrow?: string; children: ReactNode }) {
-  const ref = useRef<HTMLDialogElement>(null);
-  useEffect(() => { const dialog = ref.current; if (!dialog) return; if (open && !dialog.open) dialog.showModal(); if (!open && dialog.open) dialog.close(); }, [open]);
-  return <dialog ref={ref} className="ui-dialog m-0 ml-auto h-dvh max-h-none w-[min(94vw,32rem)] border-y-0 border-r-0 border-l border-[var(--line)] bg-[#fbfaf6] p-0 text-[var(--foreground)] shadow-[var(--shadow-dialog)]" onCancel={() => onOpenChange(false)} onClose={() => onOpenChange(false)} onClick={(event) => { if (event.target === event.currentTarget) onOpenChange(false); }}><div className="ui-slide-over flex h-full flex-col"><header className="flex items-start justify-between border-b border-[var(--line)] p-6"><div>{eyebrow && <p className="text-[var(--text-xs)] font-semibold uppercase tracking-[0.16em] text-[var(--accent-deep)]">{eyebrow}</p>}<h2 className="mt-2 text-xl font-semibold tracking-[-0.03em]">{title}</h2></div><button type="button" aria-label="Close panel" className="text-xl leading-none text-[var(--ink-muted)] hover:text-[var(--foreground)]" onClick={() => onOpenChange(false)}>×</button></header><div className="flex-1 overflow-y-auto p-6">{children}</div></div></dialog>;
+/**
+ * Same Radix primitive as Dialog, anchored to the right edge. It enters and
+ * exits along the same path, so a resume panel always leaves the way it arrived.
+ */
+export function SlideOver({
+  open,
+  onOpenChange,
+  title,
+  eyebrow,
+  description,
+  footer,
+  children,
+  className = "",
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  title: string;
+  eyebrow?: string;
+  description?: string;
+  footer?: ReactNode;
+  children?: ReactNode;
+  className?: string;
+}) {
+  return (
+    <RadixDialog.Root open={open} onOpenChange={onOpenChange}>
+      <RadixDialog.Portal>
+        <RadixDialog.Overlay className="ui-scrim fixed inset-0 z-40 bg-[var(--scrim)]" />
+        <RadixDialog.Content
+          className={`ui-slide-panel fixed inset-y-0 right-0 z-50 flex w-[min(94vw,34rem)] flex-col border-l border-[var(--line)] bg-[var(--surface)] text-[var(--foreground)] shadow-[var(--shadow-dialog)] ${className}`}
+        >
+          <header className="flex items-start justify-between gap-4 border-b border-[var(--line)] px-5 py-3">
+            <div className="min-w-0">
+              {eyebrow && (
+                <p className="text-[var(--text-xs)] font-semibold uppercase tracking-[0.14em] text-[var(--accent-deep)]">
+                  {eyebrow}
+                </p>
+              )}
+              <RadixDialog.Title className="text-[var(--text-lg)] font-semibold tracking-[-0.02em]">
+                {title}
+              </RadixDialog.Title>
+              {description ? (
+                <RadixDialog.Description className="mt-1 text-[var(--text-sm)] text-[var(--ink-muted)]">
+                  {description}
+                </RadixDialog.Description>
+              ) : (
+                <RadixDialog.Description className="sr-only">{title}</RadixDialog.Description>
+              )}
+            </div>
+            <DialogClose label="Close panel" />
+          </header>
+          <div className="flex-1 overflow-y-auto px-5 py-4">{children}</div>
+          {footer && (
+            <footer className="flex items-center justify-end gap-2 border-t border-[var(--line)] bg-[var(--surface-header)] px-5 py-3">
+              {footer}
+            </footer>
+          )}
+        </RadixDialog.Content>
+      </RadixDialog.Portal>
+    </RadixDialog.Root>
+  );
 }

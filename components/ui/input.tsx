@@ -1,6 +1,41 @@
 import type { InputHTMLAttributes } from "react";
+import { Field, controlClass, describedBy } from "./field";
 
-export function Input({ label, hint, error, className = "", id, ...props }: InputHTMLAttributes<HTMLInputElement> & { label?: string; hint?: string; error?: string }) {
+export type InputProps = InputHTMLAttributes<HTMLInputElement> & {
+  label?: string;
+  hint?: string;
+  error?: string;
+  fieldClassName?: string;
+};
+
+export function Input({
+  label,
+  hint,
+  error,
+  className = "",
+  fieldClassName = "",
+  id,
+  ...props
+}: InputProps) {
   const inputId = id ?? props.name;
-  return <label className="block text-sm font-medium" htmlFor={inputId}>{label}{props.required && <span className="ml-1 text-[var(--accent-deep)]">*</span>}<input id={inputId} className={`mt-2 block h-11 w-full border bg-transparent px-3 text-sm font-normal transition-colors placeholder:text-[var(--ink-muted)] focus:border-[var(--accent)] focus:shadow-[var(--shadow-focus)] ${error ? "border-[#a64943]" : "border-[var(--line)]"} ${className}`} {...props} />{error ? <span className="mt-1 block text-xs font-normal text-[#a64943]">{error}</span> : hint ? <span className="mt-1 block text-xs font-normal text-[var(--ink-muted)]">{hint}</span> : null}</label>;
+
+  return (
+    <Field
+      id={inputId}
+      label={label}
+      hint={hint}
+      error={error}
+      required={props.required}
+      disabled={props.disabled}
+      className={fieldClassName}
+    >
+      <input
+        id={inputId}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={describedBy(inputId, hint, error)}
+        className={`${controlClass(Boolean(error))} ${className}`}
+        {...props}
+      />
+    </Field>
+  );
 }
