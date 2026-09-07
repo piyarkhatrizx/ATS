@@ -24,7 +24,7 @@ export function NoteComposer({ candidateId }: { candidateId: string }) {
   }
 
   return (
-    <div className="border border-[var(--line)] bg-[var(--surface)] p-3">
+    <div className="border border-[var(--line)] bg-[var(--surface)] p-[var(--space-3)]">
       <label htmlFor="note-body" className="sr-only">
         Add a note
       </label>
@@ -34,9 +34,9 @@ export function NoteComposer({ candidateId }: { candidateId: string }) {
         value={body}
         onChange={(event) => setBody(event.target.value)}
         placeholder="Add a note about this candidate…"
-        className="w-full resize-y border border-[var(--line)] bg-[var(--background)] px-2 py-1.5 text-[var(--text-sm)] outline-none focus:border-[var(--accent)]"
+        className="w-full resize-y border border-[var(--line)] bg-[var(--background)] px-[var(--space-2)] py-[var(--space-1)] text-[var(--text-sm)] outline-none focus:border-[var(--accent)]"
       />
-      <div className="mt-2 flex justify-end">
+      <div className="mt-[var(--space-2)] flex justify-end">
         <Button size="sm" onClick={submit} loading={pending} disabled={!body.trim()}>
           Add note
         </Button>

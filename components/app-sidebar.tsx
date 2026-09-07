@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { SectionLabel } from "@/components/ui/section-label";
 import { SIDEBAR_COOKIE } from "@/lib/sidebar-cookie";
 
 const NAV = [
@@ -41,22 +40,22 @@ export function AppSidebar({ initialCollapsed }: { initialCollapsed: boolean }) 
     <nav
       aria-label="Main"
       data-collapsed={collapsed || undefined}
-      className={`sticky top-0 flex h-dvh shrink-0 flex-col gap-1 border-r border-[var(--line)] bg-[var(--surface)] p-2 ${
+      className={`sticky top-0 flex h-dvh shrink-0 flex-col gap-[var(--space-1)] border-r border-[var(--line)] bg-[var(--surface-sidebar)] p-[var(--space-2)] ${
         collapsed ? "w-12" : "w-44"
       }`}
     >
-      <div className="flex items-center justify-between px-1 pb-2">
+      <div className="flex items-center justify-between px-[var(--space-1)] pb-[var(--space-2)]">
         {!collapsed && (
-          <SectionLabel as="span" className="truncate">
+          <span className="truncate text-[length:var(--text-sm)] font-semibold tracking-[-0.01em] text-[var(--foreground)]">
             Korosha
-          </SectionLabel>
+          </span>
         )}
         <button
           type="button"
           onClick={toggle}
           aria-expanded={!collapsed}
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          className="ui-button flex h-6 w-6 shrink-0 items-center justify-center text-[var(--ink-muted)] hover:bg-[var(--surface-hover)] hover:text-[var(--foreground)]"
+          className="ui-button flex h-6 w-6 shrink-0 items-center justify-center rounded-[4px] text-[var(--ink-muted)] hover:bg-[var(--surface-hover)] hover:text-[var(--foreground)]"
         >
           <span aria-hidden="true">{collapsed ? "»" : "«"}</span>
         </button>
@@ -70,15 +69,15 @@ export function AppSidebar({ initialCollapsed }: { initialCollapsed: boolean }) 
             href={item.href}
             aria-current={active ? "page" : undefined}
             title={collapsed ? item.label : undefined}
-            className={`flex h-7 items-center gap-2 px-1 text-sm ${
+            className={`flex h-7 items-center gap-[var(--space-2)] rounded-[4px] px-[var(--space-1)] text-[length:var(--text-sm)] ${
               active
-                ? "bg-[var(--surface-selected)] font-semibold text-[var(--accent-deep)]"
-                : "text-[var(--foreground)] hover:bg-[var(--surface-hover)]"
+                ? "bg-[var(--surface-selected)] font-medium text-[var(--foreground)]"
+                : "text-[var(--ink-muted)] hover:bg-[var(--surface-hover)] hover:text-[var(--foreground)]"
             }`}
           >
             <span
               aria-hidden="true"
-              className="flex h-5 w-5 shrink-0 items-center justify-center text-xs font-semibold text-[var(--ink-muted)]"
+              className="flex h-5 w-5 shrink-0 items-center justify-center text-[length:var(--text-2xs)] font-semibold text-[var(--ink-faint)]"
             >
               {item.glyph}
             </span>

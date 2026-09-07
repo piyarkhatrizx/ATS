@@ -32,8 +32,8 @@ export default async function Home() {
   }
 
   return (
-    <main className="min-h-screen px-6 py-8 sm:px-10 lg:px-16">
-      <div className="mx-auto max-w-6xl">
+    <main className="min-h-screen">
+      <div className="k-shell">
         <PageHeader
           title="Open requisitions"
           subtitle={`${jobs.length} active tracks · ${unroutedCount} unrouted`}
@@ -43,21 +43,21 @@ export default async function Home() {
             </Button>
           }
         />
-        {forwarding.length > 0 && <section className="mt-6 border border-[var(--accent-tint-line)] bg-[var(--accent-tint)] p-5"><SectionLabel>Gmail forwarding verification</SectionLabel><div className="mt-3 flex flex-wrap items-center gap-x-8 gap-y-2">{forwarding.map((verification) => <div key={verification.id}><span className="font-mono text-xl tracking-[0.14em]">{verification.code}</span><span className="ml-3 text-xs text-[var(--ink-muted)]">{verification.createdAt.toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span></div>)}</div></section>}
-        <section className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {forwarding.length > 0 && <section className="mt-[var(--space-6)] border border-[var(--accent-tint-line)] bg-[var(--accent-tint)] p-[var(--space-5)]"><SectionLabel>Gmail forwarding verification</SectionLabel><div className="mt-[var(--space-3)] flex flex-wrap items-center gap-x-[var(--space-8)] gap-y-[var(--space-2)]">{forwarding.map((verification) => <div key={verification.id}><span className="font-mono text-xl tracking-[0.14em]">{verification.code}</span><span className="ml-[var(--space-3)] text-xs text-[var(--ink-muted)]">{verification.createdAt.toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span></div>)}</div></section>}
+        <section className="mt-[var(--space-10)] grid gap-[var(--space-4)] sm:grid-cols-2 lg:grid-cols-3">
           {jobs.map((job) => (
-            <Link key={job.id} href={`/jobs/${job.id}`} className="group block border border-[var(--glass-border)] k-glass p-5 transition-colors hover:border-[var(--accent)]">
-              <div className="flex items-start justify-between gap-5">
-                <span className="font-mono text-xs text-[var(--accent-deep)]">{job.reqCode}</span>
+            <Link key={job.id} href={`/jobs/${job.id}`} className="group block border border-[var(--glass-border)] k-glass p-[var(--space-5)] transition-colors hover:border-[var(--accent)]">
+              <div className="flex items-start justify-between gap-[var(--space-5)]">
+                <span className="font-mono text-xs text-[var(--foreground)]">{job.reqCode}</span>
                 <Badge tone={job.status === "OPEN" ? "success" : "neutral"}>{job.status.toLowerCase()}</Badge>
               </div>
-              <h2 className="mt-12 text-xl font-medium tracking-[-0.02em] group-hover:text-[var(--accent-deep)]">{job.title}</h2>
-              <p className="mt-2 text-sm text-[var(--ink-muted)]">{job._count.applications} applications</p>
-              <dl className="mt-4 flex flex-wrap gap-x-5 gap-y-1 border-t border-[var(--line)] pt-3">
+              <h2 className="mt-[var(--space-12)] text-xl font-medium tracking-[-0.02em] group-hover:text-[var(--foreground)]">{job.title}</h2>
+              <p className="mt-[var(--space-2)] text-sm text-[var(--ink-muted)]">{job._count.applications} applications</p>
+              <dl className="mt-[var(--space-4)] flex flex-wrap gap-x-[var(--space-5)] gap-y-[var(--space-1)] border-t border-[var(--line)] pt-[var(--space-3)]">
                 {APPLICATION_SOURCES.map((source) => {
                   const count = countsByJob.get(job.id)?.get(source) ?? 0;
                   return (
-                    <div key={source} className="flex items-baseline gap-1.5">
+                    <div key={source} className="flex items-baseline gap-[var(--space-1)]">
                       <dt className="text-[var(--text-xs)] uppercase tracking-[0.12em] text-[var(--ink-muted)]">{sourceLabel[source]}</dt>
                       <dd className={`font-mono text-sm ${count ? "text-[var(--foreground)]" : "text-[var(--ink-muted)]"}`}>{count}</dd>
                     </div>

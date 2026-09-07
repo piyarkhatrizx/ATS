@@ -46,7 +46,7 @@ export function StatusPill({
 
   return (
     <span
-      className={`inline-flex min-h-5 shrink-0 items-center gap-1.5 border px-1.5 text-[var(--text-xs)] font-semibold uppercase leading-none tracking-[0.1em] ${className}`}
+      className={`inline-flex min-h-5 shrink-0 items-center gap-[var(--space-1)] border px-[var(--space-1)] text-[var(--text-xs)] font-semibold uppercase leading-none tracking-[0.1em] ${className}`}
       style={{
         // color-mix keeps the fill and hairline derived from one token, so a
         // palette edit propagates without touching this file.

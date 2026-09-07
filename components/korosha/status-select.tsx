@@ -87,7 +87,7 @@ export function KStatusSelect({
       <DropdownMenuTrigger
         disabled={disabled || pending}
         aria-label={`${label}: ${currentOption?.label ?? "Unknown"}`}
-        className="ui-button inline-flex h-7 items-center gap-1 border border-transparent px-1 hover:border-[var(--line)] hover:bg-[var(--surface-hover)] disabled:cursor-not-allowed disabled:opacity-60"
+        className="ui-button inline-flex h-7 items-center gap-[var(--space-1)] border border-transparent px-[var(--space-1)] hover:border-[var(--line)] hover:bg-[var(--surface-hover)] disabled:cursor-not-allowed disabled:opacity-60"
       >
         <StatusPill color={currentOption?.color} label={currentOption?.label ?? "Unknown"} />
         {pending ? (

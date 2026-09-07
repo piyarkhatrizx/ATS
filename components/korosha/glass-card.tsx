@@ -23,7 +23,7 @@ export function GlassCard({
   return (
     <div
       className={`border border-[var(--glass-border)] ${flat ? "bg-[var(--surface)]" : "k-glass"} ${
-        padded ? "p-4" : ""
+        padded ? "p-[var(--space-4)]" : ""
       } ${className}`}
       {...props}
     >
@@ -43,16 +43,16 @@ export function GlassCardHeader({
   actions?: ReactNode;
 }) {
   return (
-    <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
+    <div className="mb-[var(--space-3)] flex flex-wrap items-start justify-between gap-[var(--space-3)]">
       <div className="min-w-0">
         <h2 className="truncate text-[var(--text-md)] font-semibold text-[var(--foreground)]">
           {title}
         </h2>
         {description && (
-          <p className="mt-0.5 text-[var(--text-sm)] text-[var(--ink-muted)]">{description}</p>
+          <p className="mt-[var(--space-1)] text-[var(--text-sm)] text-[var(--ink-muted)]">{description}</p>
         )}
       </div>
-      {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
+      {actions && <div className="flex shrink-0 items-center gap-[var(--space-2)]">{actions}</div>}
     </div>
   );
 }

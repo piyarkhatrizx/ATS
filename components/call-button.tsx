@@ -82,7 +82,7 @@ export function CallButton({
         title="Call candidate"
         description="Place the call from your phone, then log what happened."
         footer={
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end gap-[var(--space-2)]">
             <Button variant="secondary" onClick={() => setOpen(false)}>
               Cancel
             </Button>
@@ -92,7 +92,7 @@ export function CallButton({
           </div>
         }
       >
-        <div className="space-y-4">
+        <div className="space-y-[var(--space-4)]">
           <div>
             <p className="text-[var(--text-xs)] uppercase tracking-[0.12em] text-[var(--ink-muted)]">
               Number
@@ -100,7 +100,7 @@ export function CallButton({
             {/* href carries normalized digits; the label carries the formatting. */}
             <a
               href={`tel:${phone ?? ""}`}
-              className="mt-1 inline-block text-[var(--text-lg)] font-semibold text-[var(--accent-deep)] hover:underline"
+              className="mt-[var(--space-1)] inline-block text-[var(--text-lg)] font-semibold text-[var(--foreground)] hover:underline"
             >
               {phone ? formatPhoneLabel(phone) : "No number on file"}
             </a>
@@ -113,16 +113,16 @@ export function CallButton({
           */}
           <div
             data-telephony-slot="call-controls"
-            className="flex min-h-[120px] flex-col items-center justify-center border border-dashed border-[var(--line)] bg-[var(--surface)] p-4 text-center"
+            className="flex min-h-[120px] flex-col items-center justify-center border border-dashed border-[var(--line)] bg-[var(--surface)] p-[var(--space-4)] text-center"
           >
             <p className="text-[var(--text-sm)] font-medium">In-app calling is not connected yet</p>
-            <p className="mt-1 max-w-xs text-[var(--text-xs)] leading-relaxed text-[var(--ink-muted)]">
+            <p className="mt-[var(--space-1)] max-w-xs text-[var(--text-xs)] leading-relaxed text-[var(--ink-muted)]">
               Place this call from your own phone using the number above, then record the outcome
               below so it lands on the candidate&rsquo;s timeline.
             </p>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-[var(--space-3)] sm:grid-cols-2">
             <Select
               label="Direction"
               value={direction}
@@ -144,7 +144,7 @@ export function CallButton({
             </Select>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-[var(--space-3)] sm:grid-cols-2">
             <Input
               label="Minutes"
               type="number"
@@ -170,7 +170,7 @@ export function CallButton({
           <div>
             <label
               htmlFor="call-note"
-              className="mb-1 block text-[var(--text-sm)] font-medium"
+              className="mb-[var(--space-1)] block text-[var(--text-sm)] font-medium"
             >
               Notes
             </label>
@@ -180,7 +180,7 @@ export function CallButton({
               value={note}
               onChange={(event) => setNote(event.target.value)}
               placeholder="What was discussed?"
-              className="w-full resize-y border border-[var(--line)] bg-[var(--background)] px-2 py-1.5 text-[var(--text-sm)] outline-none focus:border-[var(--accent)]"
+              className="w-full resize-y border border-[var(--line)] bg-[var(--background)] px-[var(--space-2)] py-[var(--space-1)] text-[var(--text-sm)] outline-none focus:border-[var(--accent)]"
             />
           </div>
         </div>

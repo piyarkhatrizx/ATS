@@ -30,13 +30,13 @@ export function StatCard({
         {label}
       </p>
       <p
-        className={`mt-1.5 font-display text-[var(--text-2xl)] font-semibold leading-none tracking-[-0.02em] ${
-          emphasis ? "text-[var(--accent)]" : "text-[var(--foreground)]"
+        className={`mt-[var(--space-1)] font-display text-[var(--text-2xl)] font-semibold leading-none tracking-[-0.02em] ${
+          emphasis ? "text-[var(--foreground)]" : "text-[var(--foreground)]"
         }`}
       >
         {value}
       </p>
-      {hint && <p className="mt-1.5 text-[var(--text-xs)] text-[var(--ink-muted)]">{hint}</p>}
+      {hint && <p className="mt-[var(--space-1)] text-[var(--text-xs)] text-[var(--ink-muted)]">{hint}</p>}
     </GlassCard>
   );
 }
@@ -44,6 +44,6 @@ export function StatCard({
 /** A responsive row of stat cards. */
 export function StatGrid({ children, className = "" }: { children: ReactNode; className?: string }) {
   return (
-    <div className={`grid gap-3 sm:grid-cols-2 lg:grid-cols-4 ${className}`}>{children}</div>
+    <div className={`grid gap-[var(--space-3)] sm:grid-cols-2 lg:grid-cols-4 ${className}`}>{children}</div>
   );
 }

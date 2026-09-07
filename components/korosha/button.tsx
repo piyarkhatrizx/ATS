@@ -22,9 +22,9 @@ const variants: Record<KButtonVariant, string> = {
 };
 
 const sizes: Record<KButtonSize, string> = {
-  sm: "h-7 gap-1.5 px-2.5 text-[var(--text-xs)]",
-  md: "h-8 gap-2 px-3 text-[var(--text-sm)]",
-  lg: "h-10 gap-2 px-4 text-[var(--text-sm)]",
+  sm: "h-7 gap-[var(--space-1)] px-[var(--space-2)] text-[var(--text-xs)]",
+  md: "h-8 gap-[var(--space-2)] px-[var(--space-3)] text-[var(--text-sm)]",
+  lg: "h-10 gap-[var(--space-2)] px-[var(--space-4)] text-[var(--text-sm)]",
 };
 
 /** Square, so an icon sits centered rather than in a pill. */

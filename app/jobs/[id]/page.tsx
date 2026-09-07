@@ -58,8 +58,8 @@ export default async function JobApplicationsPage({
   ];
 
   return (
-    <main className="min-h-screen px-6 py-8 sm:px-10 lg:px-16">
-      <div className="mx-auto max-w-6xl">
+    <main className="min-h-screen">
+      <div className="k-shell">
         <PageHeader
           breadcrumb={[{ label: "Jobs", href: "/" }, { label: job.title }]}
           eyebrow={`${job.reqCode} / ${job.ingestAlias}`}
@@ -67,7 +67,7 @@ export default async function JobApplicationsPage({
           subtitle={`${total} applications · newest first`}
         />
 
-        <nav aria-label="Filter by source" className="mt-8 flex flex-wrap gap-2">
+        <nav aria-label="Filter by source" className="mt-[var(--space-8)] flex flex-wrap gap-[var(--space-2)]">
           {filters.map((filter) => {
             const active = filter.key === source;
             return (
@@ -75,7 +75,7 @@ export default async function JobApplicationsPage({
                 key={filter.label}
                 href={`/jobs/${job.id}${withParam(query, "source", filter.key)}`}
                 aria-current={active ? "page" : undefined}
-                className={`inline-flex min-h-8 items-center gap-2 border px-3 text-xs font-semibold uppercase tracking-[0.12em] transition-colors ${
+                className={`inline-flex min-h-8 items-center gap-[var(--space-2)] border px-[var(--space-3)] text-xs font-semibold uppercase tracking-[0.12em] transition-colors ${
                   active
                     ? "border-[var(--accent)] bg-[var(--accent-deep)] text-[var(--on-accent)]"
                     : "border-[var(--line)] bg-[var(--surface)] text-[var(--ink-muted)] hover:border-[var(--accent)]"
@@ -88,14 +88,14 @@ export default async function JobApplicationsPage({
           })}
         </nav>
 
-        <div className="mt-6">
+        <div className="mt-[var(--space-6)]">
           <Table className="min-w-[820px]">
             <TableHeader><tr><TableCell header>Candidate</TableCell><TableCell header>Current role</TableCell><TableCell header>Source</TableCell><TableCell header>Applied</TableCell><TableCell header>Status</TableCell><TableCell header>Parse</TableCell></tr></TableHeader>
             <TableBody>{applications.map((application) => {
               const candidateName = [application.candidate.firstName, application.candidate.lastName].filter(Boolean).join(" ") || "Unnamed candidate";
               const parseStatus = application.documents[0]?.parseStatus ?? "PENDING";
               return <TableRow key={application.id}>
-                <TableCell><Link className="font-medium hover:text-[var(--accent-deep)]" href={`/candidates/${application.candidateId}`}>{candidateName}</Link><div className="mt-1 text-xs text-[var(--ink-muted)]">{application.candidate.email ?? "No email"}</div></TableCell>
+                <TableCell><Link className="font-medium hover:text-[var(--foreground)]" href={`/candidates/${application.candidateId}`}>{candidateName}</Link><div className="mt-[var(--space-1)] text-xs text-[var(--ink-muted)]">{application.candidate.email ?? "No email"}</div></TableCell>
                 <TableCell><span className="text-[var(--ink-muted)]">{application.candidate.currentTitle ?? "—"}</span></TableCell>
                 <TableCell><Badge tone={sourceTone[application.source]}>{sourceLabel[application.source]}</Badge></TableCell>
                 <TableCell><span className="text-[var(--ink-muted)]">{application.appliedAt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span></TableCell>
@@ -104,15 +104,15 @@ export default async function JobApplicationsPage({
               </TableRow>;
             })}</TableBody>
           </Table>
-          {!applications.length && <p className="p-8 text-sm text-[var(--ink-muted)]">{source ? `No applications from ${sourceLabel[source].toLowerCase()} for this requisition.` : "No applications have arrived for this requisition."}</p>}
+          {!applications.length && <p className="p-[var(--space-8)] text-sm text-[var(--ink-muted)]">{source ? `No applications from ${sourceLabel[source].toLowerCase()} for this requisition.` : "No applications have arrived for this requisition."}</p>}
           {matching > PAGE_SIZE && (
-            <nav aria-label="Pagination" className="mt-6 flex items-center justify-between border-t border-[var(--line)] pt-4 text-sm">
+            <nav aria-label="Pagination" className="mt-[var(--space-6)] flex items-center justify-between border-t border-[var(--line)] pt-[var(--space-4)] text-sm">
               <span className="text-[var(--ink-muted)]">
                 {skip + 1}–{Math.min(skip + PAGE_SIZE, matching)} of {matching}
               </span>
-              <span className="flex gap-4">
-                {page > 1 && <Link className="font-semibold text-[var(--accent-deep)]" href={`/jobs/${job.id}${withParam(query, "page", String(page - 1))}`}>← Previous</Link>}
-                {skip + PAGE_SIZE < matching && <Link className="font-semibold text-[var(--accent-deep)]" href={`/jobs/${job.id}${withParam(query, "page", String(page + 1))}`}>Next →</Link>}
+              <span className="flex gap-[var(--space-4)]">
+                {page > 1 && <Link className="font-semibold text-[var(--foreground)]" href={`/jobs/${job.id}${withParam(query, "page", String(page - 1))}`}>← Previous</Link>}
+                {skip + PAGE_SIZE < matching && <Link className="font-semibold text-[var(--foreground)]" href={`/jobs/${job.id}${withParam(query, "page", String(page + 1))}`}>Next →</Link>}
               </span>
             </nav>
           )}

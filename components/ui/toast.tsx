@@ -20,13 +20,13 @@ export function Toaster() {
         unstyled: true,
         classNames: {
           toast:
-            "ui-material flex w-full items-center gap-2 border border-[var(--line)] px-3 py-2 text-[var(--text-sm)] text-[var(--foreground)] shadow-[var(--shadow-panel)]",
+            "k-glass flex w-full items-center gap-[var(--space-2)] border border-[var(--line)] px-[var(--space-3)] py-[var(--space-2)] text-[var(--text-sm)] text-[var(--foreground)] shadow-[var(--shadow-panel)]",
           title: "font-semibold",
           description: "text-[var(--ink-muted)]",
           actionButton:
-            "ui-button ml-auto inline-flex h-6 shrink-0 items-center border border-transparent bg-[var(--accent-deep)] px-2 text-[var(--text-xs)] font-semibold text-[var(--on-accent)]",
+            "ui-button ml-auto inline-flex h-6 shrink-0 items-center border border-transparent bg-[var(--accent-deep)] px-[var(--space-2)] text-[var(--text-xs)] font-semibold text-[var(--on-accent)]",
           cancelButton:
-            "ui-button inline-flex h-6 shrink-0 items-center border border-[var(--line)] px-2 text-[var(--text-xs)] font-semibold",
+            "ui-button inline-flex h-6 shrink-0 items-center border border-[var(--line)] px-[var(--space-2)] text-[var(--text-xs)] font-semibold",
           error: "text-[var(--status-rejected)]",
           success: "text-[var(--status-accepted)]",
         },

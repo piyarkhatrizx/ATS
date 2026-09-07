@@ -32,17 +32,17 @@ export function Dialog({
         <RadixDialog.Overlay className="ui-scrim fixed inset-0 z-40 bg-[var(--scrim)]" />
         {/* Centering lives on the wrapper so the enter/exit keyframe owns
             `transform` outright and never fights a translate utility. */}
-        <div className="pointer-events-none fixed inset-0 z-50 grid place-items-center p-4">
+        <div className="pointer-events-none fixed inset-0 z-50 grid place-items-center p-[var(--space-4)]">
         <RadixDialog.Content
           className={`ui-dialog-panel pointer-events-auto w-[min(92vw,32rem)] border border-[var(--line)] bg-[var(--surface)] text-[var(--foreground)] shadow-[var(--shadow-dialog)] ${className}`}
         >
-          <div className="flex items-start justify-between gap-4 border-b border-[var(--line)] px-5 py-3">
+          <div className="flex items-start justify-between gap-[var(--space-4)] border-b border-[var(--line)] px-[var(--space-5)] py-[var(--space-3)]">
             <div className="min-w-0">
               <RadixDialog.Title className="text-[var(--text-lg)] font-semibold tracking-[-0.02em]">
                 {title}
               </RadixDialog.Title>
               {description ? (
-                <RadixDialog.Description className="mt-1 text-[var(--text-sm)] leading-relaxed text-[var(--ink-muted)]">
+                <RadixDialog.Description className="mt-[var(--space-1)] text-[var(--text-sm)] leading-relaxed text-[var(--ink-muted)]">
                   {description}
                 </RadixDialog.Description>
               ) : (
@@ -51,9 +51,9 @@ export function Dialog({
             </div>
             <DialogClose />
           </div>
-          <div className="px-5 py-4">{children}</div>
+          <div className="px-[var(--space-5)] py-[var(--space-4)]">{children}</div>
           {footer && (
-            <div className="flex items-center justify-end gap-2 border-t border-[var(--line)] bg-[var(--surface-header)] px-5 py-3">
+            <div className="flex items-center justify-end gap-[var(--space-2)] border-t border-[var(--line)] bg-[var(--surface-header)] px-[var(--space-5)] py-[var(--space-3)]">
               {footer}
             </div>
           )}

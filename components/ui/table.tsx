@@ -79,14 +79,14 @@ export function TableRow({
 }
 
 /**
- * `py-1` gives a ~28px row ONLY when every cell is a single line.
+ * `py-[var(--space-1)]` gives a ~28px row ONLY when every cell is a single line.
  *
  * The real list views stack name over email, which makes rows ~47px, so about
  * 12 fit above the fold on /jobs/[id] at an 800px viewport — not the ~25 an
  * earlier version of this comment claimed. Measure before relying on a number
  * here: row height is set by the tallest cell's content, not by this padding.
  */
-const cellPadding = "px-2 py-1 align-middle";
+const cellPadding = "px-[var(--space-2)] py-[var(--space-1)] align-middle";
 
 export function TableCell({
   children,
@@ -139,13 +139,13 @@ export function TableSortHeader({
         type="button"
         onClick={onSort}
         disabled={!onSort}
-        className={`ui-button inline-flex w-full items-center gap-1 text-[var(--text-xs)] font-semibold uppercase tracking-[0.1em] text-[var(--ink-muted)] hover:text-[var(--foreground)] disabled:cursor-default disabled:hover:text-[var(--ink-muted)] ${
+        className={`ui-button inline-flex w-full items-center gap-[var(--space-1)] text-[var(--text-xs)] font-semibold uppercase tracking-[0.1em] text-[var(--ink-muted)] hover:text-[var(--foreground)] disabled:cursor-default disabled:hover:text-[var(--ink-muted)] ${
           align === "right" ? "justify-end" : "justify-start"
         }`}
       >
         {children}
         {onSort && (
-          <span aria-hidden="true" className={sorted ? "text-[var(--accent-deep)]" : "opacity-0"}>
+          <span aria-hidden="true" className={sorted ? "text-[var(--foreground)]" : "opacity-0"}>
             {sorted === "desc" ? "↓" : "↑"}
           </span>
         )}
@@ -157,7 +157,7 @@ export function TableSortHeader({
 export function TableMessageRow({ colSpan, children }: { colSpan: number; children: ReactNode }) {
   return (
     <tr>
-      <td colSpan={colSpan} className="px-2 py-6 text-center text-[var(--ink-muted)]">
+      <td colSpan={colSpan} className="px-[var(--space-2)] py-[var(--space-6)] text-center text-[var(--ink-muted)]">
         {children}
       </td>
     </tr>
@@ -171,7 +171,7 @@ export function TableMessageRow({ colSpan, children }: { colSpan: number; childr
 export function TableLoadingRow({ colSpan, label = "Loading" }: { colSpan: number; label?: string }) {
   return (
     <TableMessageRow colSpan={colSpan}>
-      <span className="inline-flex items-center gap-2 text-[var(--text-sm)]" role="status">
+      <span className="inline-flex items-center gap-[var(--space-2)] text-[var(--text-sm)]" role="status">
         <Spinner />
         {label}
       </span>

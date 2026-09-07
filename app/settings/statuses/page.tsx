@@ -26,14 +26,14 @@ export default async function StatusesSettingsPage() {
   });
 
   return (
-    <main className="min-h-screen px-6 py-8 sm:px-10 lg:px-16">
-      <div className="mx-auto max-w-5xl">
+    <main className="min-h-screen">
+      <div className="k-shell">
         <PageHeader
           eyebrow="Settings"
           title="Statuses"
           subtitle="Analytics reads counts as, never the name — so renaming a status changes a label and nothing else."
         />
-        <div className="mt-6">
+        <div className="mt-[var(--space-6)]">
           <StatusesEditor
             initial={statuses.map(({ _count, ...status }) => ({
               ...status,

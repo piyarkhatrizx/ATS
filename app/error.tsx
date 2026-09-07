@@ -21,9 +21,9 @@ export default function Error({
   }, [error]);
 
   return (
-    <main className="min-h-screen px-6 py-8 sm:px-10 lg:px-16">
+    <main className="min-h-screen px-[var(--space-6)] py-[var(--space-8)] sm:px-[var(--space-10)] lg:px-[var(--space-12)]">
       <PageHeader title="Something went wrong" />
-      <div className="mt-4">
+      <div className="mt-[var(--space-4)]">
         <EmptyState
           title="This view could not load"
           description={

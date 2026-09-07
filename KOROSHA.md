@@ -15,12 +15,29 @@ One codebase, one flag. No second repo.
 All tier gating goes through lib/features.ts. Never scatter env checks.
 
 ## Design
- white, light purple #e1b9f0. light glassmorphism.
-- Panels are dark. Purple appears only in ambient background glows,
-  borders, focus rings, and primary buttons. Purple is never a panel fill.
-- Body text always sits on a dark surface, never directly on a glow.
-- One blur layer per element. Never stack backdrop-filter.
-- All colors come from styles/tokens.css. No hardcoded hex anywhere else.
+Black, white, light purple. LIGHT glassmorphism. Dense internal tool, not a
+marketing site: optimise for scanning a list and getting to a call fast.
+- Purple is NEVER ink. Not text, not links. It appears in borders, focus
+  rings, primary button fills and status tints.
+- #e1b9f0 is tint-only — it is 1.69:1 on white and cannot carry text or act
+  as a fill under white text. Anything carrying contrast uses a deeper shade
+  derived from the same hue (283.6deg): --accent #9138b2 for button fills
+  (white on it = 6.15:1), --accent-line #b669d3 for focus rings (3.48:1).
+- There is NO ambient glow layer. Purple radials read as a stain on white;
+  the light glass and hue-tinted shadows carry the depth instead. Do not
+  reintroduce one.
+- One blur layer per element, 10px. Light glass shows seams dark hides, so be
+  conservative and never stack backdrop-filter.
+- Shadows carry the accent hue at low alpha. Pure black reads as dirt.
+- Neutrals are one gray family, faintly purple-tinted. Never pure black.
+- All colors come from styles/tokens.css. No hardcoded hex anywhere else,
+  including the Status.color swatch set.
+- Type is IBM Plex Sans, three weights (400/500/600). The scale is built
+  around a 36px list row: weight carries hierarchy, not size. Numbers use
+  tabular figures. List cells are single-line and never wrap.
+- One page shell: 1180px, one padding value, every page.
+- Motion only where it communicates state. No scroll animation, no entrance
+  or staggered reveals, no decorative motion.
 
 ## Core objects
 - applicant: a lead. Has a source (apply | email), a status, and a form

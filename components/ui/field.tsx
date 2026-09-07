@@ -22,7 +22,7 @@ export function describedBy(id: string | undefined, hint?: string, error?: strin
 /** Border, background and focus treatment shared by input and select. */
 export function controlClass(error: boolean) {
   return [
-    "block h-8 w-full border bg-[var(--surface)] px-2 text-[var(--text-sm)] font-normal text-[var(--foreground)]",
+    "block h-8 w-full border bg-[var(--surface)] px-[var(--space-2)] text-[var(--text-sm)] font-normal text-[var(--foreground)]",
     "transition-[border-color,box-shadow] duration-150 ease-out placeholder:text-[var(--ink-muted)]",
     "focus:border-[var(--accent)] focus:shadow-[var(--shadow-focus)]",
     "disabled:cursor-not-allowed disabled:bg-[var(--surface-sunken)] disabled:text-[var(--ink-muted)]",
@@ -56,11 +56,11 @@ export function Field({
       {label && (
         <label
           htmlFor={id}
-          className="mb-1 block text-[var(--text-xs)] font-semibold uppercase tracking-[0.08em] text-[var(--ink-muted)]"
+          className="mb-[var(--space-1)] block text-[var(--text-xs)] font-semibold uppercase tracking-[0.08em] text-[var(--ink-muted)]"
         >
           {label}
           {required && (
-            <span className="ml-1 text-[var(--accent-deep)]" aria-hidden="true">
+            <span className="ml-[var(--space-1)] text-[var(--danger)]" aria-hidden="true">
               *
             </span>
           )}
@@ -68,11 +68,11 @@ export function Field({
       )}
       {children}
       {error ? (
-        <p id={errorId} role="alert" className="mt-1 text-[var(--text-xs)] text-[var(--danger)]">
+        <p id={errorId} role="alert" className="mt-[var(--space-1)] text-[var(--text-xs)] text-[var(--danger)]">
           {error}
         </p>
       ) : hint ? (
-        <p id={hintId} className="mt-1 text-[var(--text-xs)] text-[var(--ink-muted)]">
+        <p id={hintId} className="mt-[var(--space-1)] text-[var(--text-xs)] text-[var(--ink-muted)]">
           {hint}
         </p>
       ) : null}

@@ -44,7 +44,7 @@ export function KTableRow({
       onClick={onOpen}
       onKeyDown={onKeyDown}
       className={[
-        "flex items-center gap-3 border-b border-[var(--line)] px-3 py-2 last:border-0",
+        "flex items-center gap-[var(--space-3)] border-b border-[var(--line)] px-[var(--space-3)] py-[var(--space-2)] last:border-0",
         interactive ? "cursor-pointer" : "",
         selected
           ? "bg-[var(--surface-selected)] shadow-[inset_2px_0_0_var(--accent)]"
@@ -64,7 +64,7 @@ export function KTableRow({
 export function KTableHead({ children, className = "" }: { children: ReactNode; className?: string }) {
   return (
     <div
-      className={`ui-sticky-head flex items-center gap-3 px-3 py-1.5 text-[var(--text-xs)] font-semibold uppercase tracking-[0.1em] text-[var(--ink-muted)] ${className}`}
+      className={`ui-sticky-head flex items-center gap-[var(--space-3)] px-[var(--space-3)] py-[var(--space-1)] text-[var(--text-xs)] font-semibold uppercase tracking-[0.1em] text-[var(--ink-muted)] ${className}`}
     >
       {children}
     </div>

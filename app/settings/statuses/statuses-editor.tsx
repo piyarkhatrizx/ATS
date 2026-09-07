@@ -12,6 +12,7 @@ import { GlassCard, GlassCardHeader } from "@/components/korosha/glass-card";
 import { KButton } from "@/components/korosha/button";
 import { KEmptyState } from "@/components/korosha/empty-state";
 import { StatusPill, STATUS_COLOR_TOKENS } from "@/components/korosha/status-pill";
+import { IconChevronDown, IconChevronUp, IconGrip, IconTrash } from "@/components/korosha/icon";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { toast } from "@/components/ui/toast";
@@ -39,7 +40,7 @@ function ColorPicker({
   label: string;
 }) {
   return (
-    <div className="flex items-center gap-1.5" role="radiogroup" aria-label={label}>
+    <div className="flex items-center gap-[var(--space-1)]" role="radiogroup" aria-label={label}>
       {STATUS_COLOR_TOKENS.map((token) => (
         <button
           key={token}
@@ -84,13 +85,13 @@ export function StatusesEditor({ initial }: { initial: EditableStatus[] }) {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-[var(--space-5)]">
       <GlassCard>
         <GlassCardHeader
           title="Add a status"
           description="Colors come from the palette so a new status cannot fail contrast."
         />
-        <div className="flex flex-wrap items-end gap-3">
+        <div className="flex flex-wrap items-end gap-[var(--space-3)]">
           <Input
             label="Name"
             value={newLabel}
@@ -99,7 +100,7 @@ export function StatusesEditor({ initial }: { initial: EditableStatus[] }) {
             fieldClassName="min-w-52"
           />
           <div>
-            <span className="mb-1 block text-[var(--text-sm)] font-medium">Color</span>
+            <span className="mb-[var(--space-1)] block text-[var(--text-sm)] font-medium">Color</span>
             <ColorPicker value={newColor} onChange={setNewColor} label="New status color" />
           </div>
           <Select
@@ -143,30 +144,31 @@ export function StatusesEditor({ initial }: { initial: EditableStatus[] }) {
             {statuses.map((status, index) => (
               <li
                 key={status.id}
-                className="flex flex-wrap items-center gap-3 border-b border-[var(--line)] px-3 py-2.5 last:border-0"
+                className="grid grid-cols-[auto_1fr_auto] items-center gap-x-[var(--space-3)] gap-y-[var(--space-2)] border-b border-[var(--line)] px-[var(--space-3)] py-[var(--space-2)] last:border-0 lg:grid-cols-[auto_minmax(0,1fr)_auto_auto_auto_auto_auto]"
               >
-                <div className="flex shrink-0 flex-col">
-                  <button
-                    type="button"
-                    aria-label={`Move ${status.label} up`}
-                    disabled={index === 0 || pending}
-                    onClick={() => move(index, -1)}
-                    className="ui-button h-4 px-1 text-[var(--text-xs)] text-[var(--ink-muted)] hover:text-[var(--foreground)] disabled:opacity-30"
-                  >
-                    ▲
-                  </button>
-                  <button
-                    type="button"
-                    aria-label={`Move ${status.label} down`}
-                    disabled={index === statuses.length - 1 || pending}
-                    onClick={() => move(index, 1)}
-                    className="ui-button h-4 px-1 text-[var(--text-xs)] text-[var(--ink-muted)] hover:text-[var(--foreground)] disabled:opacity-30"
-                  >
-                    ▼
-                  </button>
+                <div className="flex shrink-0 items-center gap-[var(--space-1)] text-[var(--ink-faint)]">
+                  <IconGrip size={14} />
+                  <div className="flex flex-col">
+                    <button
+                      type="button"
+                      aria-label={`Move ${status.label} up`}
+                      disabled={index === 0 || pending}
+                      onClick={() => move(index, -1)}
+                      className="ui-button flex h-3.5 w-4 items-center justify-center rounded-[2px] text-[var(--ink-muted)] hover:bg-[var(--surface-hover)] hover:text-[var(--foreground)] disabled:opacity-25"
+                    >
+                      <IconChevronUp size={12} />
+                    </button>
+                    <button
+                      type="button"
+                      aria-label={`Move ${status.label} down`}
+                      disabled={index === statuses.length - 1 || pending}
+                      onClick={() => move(index, 1)}
+                      className="ui-button flex h-3.5 w-4 items-center justify-center rounded-[2px] text-[var(--ink-muted)] hover:bg-[var(--surface-hover)] hover:text-[var(--foreground)] disabled:opacity-25"
+                    >
+                      <IconChevronDown size={12} />
+                    </button>
+                  </div>
                 </div>
-
-                <StatusPill color={status.color} label={status.label} />
 
                 <input
                   aria-label={`Rename ${status.label}`}
@@ -176,8 +178,10 @@ export function StatusesEditor({ initial }: { initial: EditableStatus[] }) {
                     if (!label || label === status.label) return;
                     run(() => updateStatus({ id: status.id, label }), "Renamed");
                   }}
-                  className="min-w-40 flex-1 border border-transparent bg-transparent px-1.5 py-1 text-[var(--text-sm)] text-[var(--foreground)] hover:border-[var(--line)] focus:border-[var(--accent)] focus:outline-none"
+                  className="min-w-0 rounded-[4px] border border-transparent bg-transparent px-[var(--space-2)] py-[var(--space-1)] text-[length:var(--text-sm)] font-medium text-[var(--foreground)] hover:border-[var(--line)] focus:border-[var(--accent-line)] focus:outline-none"
                 />
+
+                <StatusPill color={status.color} label={status.label} />
 
                 <ColorPicker
                   value={status.color}
@@ -198,7 +202,7 @@ export function StatusesEditor({ initial }: { initial: EditableStatus[] }) {
                       "Saved",
                     )
                   }
-                  className="border border-[var(--line)] bg-[var(--surface-sunken)] px-1.5 py-1 text-[var(--text-xs)] text-[var(--foreground)]"
+                  className="rounded-[4px] border border-[var(--line)] bg-[var(--surface-sunken)] px-[var(--space-2)] py-[var(--space-1)] text-[length:var(--text-xs)] text-[var(--foreground)]"
                 >
                   {COUNTS_AS_VALUES.map((value) => (
                     <option key={value} value={value}>
@@ -207,7 +211,7 @@ export function StatusesEditor({ initial }: { initial: EditableStatus[] }) {
                   ))}
                 </select>
 
-                <label className="flex items-center gap-1.5 text-[var(--text-xs)] text-[var(--ink-muted)]">
+                <label className="flex items-center gap-[var(--space-1)] whitespace-nowrap text-[length:var(--text-xs)] text-[var(--ink-muted)]">
                   <input
                     type="checkbox"
                     defaultChecked={status.isTerminal}
@@ -221,7 +225,7 @@ export function StatusesEditor({ initial }: { initial: EditableStatus[] }) {
                   Terminal
                 </label>
 
-                <span className="w-16 text-right font-mono text-[var(--text-xs)] text-[var(--ink-muted)]">
+                <span className="k-tnum w-14 text-right text-[length:var(--text-xs)] text-[var(--ink-muted)]">
                   {status.applicationCount} app{status.applicationCount === 1 ? "" : "s"}
                 </span>
 
@@ -241,6 +245,7 @@ export function StatusesEditor({ initial }: { initial: EditableStatus[] }) {
                 <KButton
                   size="sm"
                   variant="danger"
+                  aria-label={`Delete ${status.label}`}
                   title={
                     status.applicationCount > 0
                       ? "Reassign its applications first, or deactivate it instead"
@@ -256,7 +261,8 @@ export function StatusesEditor({ initial }: { initial: EditableStatus[] }) {
                     }, "Deleted")
                   }
                 >
-                  Delete
+                  <IconTrash size={13} />
+                  <span className="sr-only">Delete {status.label}</span>
                 </KButton>
               </li>
             ))}

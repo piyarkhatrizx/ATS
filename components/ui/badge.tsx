@@ -25,7 +25,7 @@ export function Badge({ children, tone = "neutral" }: { children: ReactNode; ton
   const token = toneToken[tone];
   return (
     <span
-      className="inline-flex min-h-5 items-center border px-1.5 text-[var(--text-xs)] font-semibold uppercase leading-none tracking-[0.1em]"
+      className="inline-flex min-h-5 items-center border px-[var(--space-1)] text-[var(--text-xs)] font-semibold uppercase leading-none tracking-[0.1em]"
       style={{
         color: `var(${token})`,
         backgroundColor: `color-mix(in oklab, var(${token}) 14%, transparent)`,

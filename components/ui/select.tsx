@@ -39,7 +39,7 @@ export function Select({
         id={selectId}
         aria-invalid={error ? true : undefined}
         aria-describedby={describedBy(selectId, hint, error)}
-        className={`${controlClass(Boolean(error))} pr-7 ${className}`}
+        className={`${controlClass(Boolean(error))} pr-[var(--space-6)] ${className}`}
         {...props}
       >
         {children}

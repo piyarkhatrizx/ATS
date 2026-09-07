@@ -39,12 +39,12 @@ export default async function CandidatesPage({
   ]);
 
   return (
-    <main className="min-h-screen px-6 py-8 sm:px-10 lg:px-16">
+    <main className="min-h-screen">
       <PageHeader
         title="Candidates"
         subtitle={`${matching} record${matching === 1 ? "" : "s"}`}
       />
-      <div className="mt-4">
+      <div className="mt-[var(--space-4)]">
         {candidates.length ? (
           // min-w so the table scrolls rather than compresses, matching
           // /jobs/[id] and /applications: emails and role titles run long, and
@@ -64,7 +64,7 @@ export default async function CandidatesPage({
                   <TableCell>
                     <Link
                       href={`/candidates/${candidate.id}`}
-                      className="font-medium hover:text-[var(--accent-deep)]"
+                      className="font-medium hover:text-[var(--foreground)]"
                     >
                       {[candidate.firstName, candidate.lastName].filter(Boolean).join(" ") ||
                         "Unnamed candidate"}
@@ -86,13 +86,13 @@ export default async function CandidatesPage({
           />
         )}
         {matching > PAGE_SIZE && (
-          <nav aria-label="Pagination" className="mt-6 flex items-center justify-between border-t border-[var(--line)] pt-4 text-sm">
+          <nav aria-label="Pagination" className="mt-[var(--space-6)] flex items-center justify-between border-t border-[var(--line)] pt-[var(--space-4)] text-sm">
             <span className="text-[var(--ink-muted)]">
               {skip + 1}–{Math.min(skip + PAGE_SIZE, matching)} of {matching}
             </span>
-            <span className="flex gap-4">
-              {page > 1 && <Link className="font-semibold text-[var(--accent-deep)]" href={`/candidates${withParam(query, "page", String(page - 1))}`}>← Previous</Link>}
-              {skip + PAGE_SIZE < matching && <Link className="font-semibold text-[var(--accent-deep)]" href={`/candidates${withParam(query, "page", String(page + 1))}`}>Next →</Link>}
+            <span className="flex gap-[var(--space-4)]">
+              {page > 1 && <Link className="font-semibold text-[var(--foreground)]" href={`/candidates${withParam(query, "page", String(page - 1))}`}>← Previous</Link>}
+              {skip + PAGE_SIZE < matching && <Link className="font-semibold text-[var(--foreground)]" href={`/candidates${withParam(query, "page", String(page + 1))}`}>Next →</Link>}
             </span>
           </nav>
         )}

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { KButton } from "./button";
+import { IconInbox } from "./icon";
 
 /**
  * Wayfinding, not decoration: what is missing, why, and the one thing to do
@@ -23,7 +24,7 @@ export function KEmptyState({
   return (
     <div
       className={`flex flex-col items-center justify-center border border-dashed border-[var(--line)] bg-[var(--surface)] text-center ${
-        compact ? "px-4 py-6" : "px-6 py-12"
+        compact ? "px-[var(--space-4)] py-[var(--space-6)]" : "px-[var(--space-6)] py-[var(--space-12)]"
       } ${className}`}
     >
       <span
@@ -32,22 +33,22 @@ export function KEmptyState({
           compact ? "h-7 w-7 text-[var(--text-xs)]" : "h-10 w-10 text-[var(--text-md)]"
         }`}
       >
-        {icon ?? "—"}
+        {icon ?? <IconInbox size={compact ? 14 : 18} />}
       </span>
       <h2
-        className={`mt-3 font-semibold text-[var(--foreground)] ${
+        className={`mt-[var(--space-3)] font-semibold text-[var(--foreground)] ${
           compact ? "text-[var(--text-sm)]" : "text-[var(--text-lg)]"
         }`}
       >
         {title}
       </h2>
       {description && (
-        <p className="mx-auto mt-1 max-w-sm text-[var(--text-sm)] leading-relaxed text-[var(--ink-muted)]">
+        <p className="mx-auto mt-[var(--space-1)] max-w-sm text-[var(--text-sm)] leading-relaxed text-[var(--ink-muted)]">
           {description}
         </p>
       )}
       {action && (
-        <div className="mt-4">
+        <div className="mt-[var(--space-4)]">
           {action.href ? (
             <KButton variant="accent" size="md" asChild>
               <a href={action.href}>{action.label}</a>

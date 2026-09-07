@@ -18,7 +18,7 @@ export function SectionLabel({
   return (
     <Component
       className={`text-xs font-semibold uppercase tracking-[0.16em] ${
-        tone === "accent" ? "text-[var(--accent-deep)]" : "text-[var(--ink-muted)]"
+        tone === "accent" ? "text-[var(--foreground)]" : "text-[var(--ink-muted)]"
       } ${className}`}
     >
       {children}

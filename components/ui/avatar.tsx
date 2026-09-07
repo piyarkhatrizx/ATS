@@ -107,7 +107,7 @@ export function AvatarWithLabel({
   children?: ReactNode;
 }) {
   return (
-    <span className="inline-flex min-w-0 items-center gap-2">
+    <span className="inline-flex min-w-0 items-center gap-[var(--space-2)]">
       <Avatar name={name} src={src} size={size} />
       <span className="min-w-0 truncate">{children ?? name}</span>
     </span>

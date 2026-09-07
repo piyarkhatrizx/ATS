@@ -35,7 +35,7 @@ export function SlideOver({
         <RadixDialog.Content
           className={`ui-slide-panel fixed inset-y-0 right-0 z-50 flex w-[min(94vw,34rem)] flex-col border-l border-[var(--line)] bg-[var(--surface)] text-[var(--foreground)] shadow-[var(--shadow-dialog)] ${className}`}
         >
-          <header className="flex items-start justify-between gap-4 border-b border-[var(--line)] px-5 py-3">
+          <header className="flex items-start justify-between gap-[var(--space-4)] border-b border-[var(--line)] px-[var(--space-5)] py-[var(--space-3)]">
             <div className="min-w-0">
               {eyebrow && (
                 <SectionLabel>{eyebrow}</SectionLabel>
@@ -44,7 +44,7 @@ export function SlideOver({
                 {title}
               </RadixDialog.Title>
               {description ? (
-                <RadixDialog.Description className="mt-1 text-[var(--text-sm)] text-[var(--ink-muted)]">
+                <RadixDialog.Description className="mt-[var(--space-1)] text-[var(--text-sm)] text-[var(--ink-muted)]">
                   {description}
                 </RadixDialog.Description>
               ) : (
@@ -53,9 +53,9 @@ export function SlideOver({
             </div>
             <DialogClose label="Close panel" />
           </header>
-          <div className="flex-1 overflow-y-auto px-5 py-4">{children}</div>
+          <div className="flex-1 overflow-y-auto px-[var(--space-5)] py-[var(--space-4)]">{children}</div>
           {footer && (
-            <footer className="flex items-center justify-end gap-2 border-t border-[var(--line)] bg-[var(--surface-header)] px-5 py-3">
+            <footer className="flex items-center justify-end gap-[var(--space-2)] border-t border-[var(--line)] bg-[var(--surface-header)] px-[var(--space-5)] py-[var(--space-3)]">
               {footer}
             </footer>
           )}

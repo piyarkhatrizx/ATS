@@ -45,7 +45,7 @@ export function SidePanel({
       footer={footer}
     >
       {actions && (
-        <div className="mb-4 flex flex-wrap items-center gap-2 border-b border-[var(--line)] pb-4">
+        <div className="mb-[var(--space-4)] flex flex-wrap items-center gap-[var(--space-2)] border-b border-[var(--line)] pb-[var(--space-4)]">
           {actions}
         </div>
       )}
@@ -65,8 +65,8 @@ export function SidePanelSection({
   className?: string;
 }) {
   return (
-    <section className={`mb-5 last:mb-0 ${className}`}>
-      <h3 className="mb-2 text-[var(--text-xs)] font-semibold uppercase tracking-[0.12em] text-[var(--ink-muted)]">
+    <section className={`mb-[var(--space-5)] last:mb-0 ${className}`}>
+      <h3 className="mb-[var(--space-2)] text-[var(--text-xs)] font-semibold uppercase tracking-[0.12em] text-[var(--ink-muted)]">
         {title}
       </h3>
       {children}
@@ -77,7 +77,7 @@ export function SidePanelSection({
 /** Label/value pairs. Values wrap; labels never do. */
 export function SidePanelField({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="flex gap-3 border-b border-[var(--line)] py-1.5 last:border-0">
+    <div className="flex gap-[var(--space-3)] border-b border-[var(--line)] py-[var(--space-1)] last:border-0">
       <dt className="w-28 shrink-0 text-[var(--text-sm)] text-[var(--ink-muted)]">{label}</dt>
       <dd className="min-w-0 flex-1 break-words text-[var(--text-sm)]">{children}</dd>
     </div>

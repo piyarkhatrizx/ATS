@@ -61,8 +61,8 @@ export default async function CaregiverApplicationsPage({
   ]);
 
   return (
-    <main className="min-h-screen px-6 py-8 sm:px-10 lg:px-16">
-      <div className="mx-auto max-w-7xl">
+    <main className="min-h-screen">
+      <div className="k-shell">
         <PageHeader
           eyebrow="Care team intake"
           title="Caregiver applications"
@@ -74,7 +74,7 @@ export default async function CaregiverApplicationsPage({
           }
         />
 
-        <div className="mt-8">
+        <div className="mt-[var(--space-8)]">
           <Table className="min-w-[1050px]">
             <TableHeader>
               <tr>
@@ -100,14 +100,14 @@ export default async function CaregiverApplicationsPage({
                     <TableCell>
                       <Link
                         href={`/candidates/${application.candidateId}`}
-                        className="font-medium hover:text-[var(--accent-deep)]"
+                        className="font-medium hover:text-[var(--foreground)]"
                       >
                         {name}
                       </Link>
                     </TableCell>
                     <TableCell>
                       <div>{application.candidate.email ?? "—"}</div>
-                      <div className="mt-1 text-xs text-[var(--ink-muted)]">{application.candidate.phone ?? "—"}</div>
+                      <div className="mt-[var(--space-1)] text-xs text-[var(--ink-muted)]">{application.candidate.phone ?? "—"}</div>
                     </TableCell>
                     <TableCell><StatusPill color={application.statusRef.color} label={application.statusRef.label} /></TableCell>
                     <TableCell><Badge tone={answerTone(screening.isAtLeast18)}>{answer(screening.isAtLeast18)}</Badge></TableCell>
@@ -129,13 +129,13 @@ export default async function CaregiverApplicationsPage({
             />
           )}
           {matching > PAGE_SIZE && (
-            <nav aria-label="Pagination" className="mt-6 flex items-center justify-between border-t border-[var(--line)] pt-4 text-sm">
+            <nav aria-label="Pagination" className="mt-[var(--space-6)] flex items-center justify-between border-t border-[var(--line)] pt-[var(--space-4)] text-sm">
               <span className="text-[var(--ink-muted)]">
                 {skip + 1}–{Math.min(skip + PAGE_SIZE, matching)} of {matching}
               </span>
-              <span className="flex gap-4">
-                {page > 1 && <Link className="font-semibold text-[var(--accent-deep)]" href={`/applications${withParam(query, "page", String(page - 1))}`}>← Previous</Link>}
-                {skip + PAGE_SIZE < matching && <Link className="font-semibold text-[var(--accent-deep)]" href={`/applications${withParam(query, "page", String(page + 1))}`}>Next →</Link>}
+              <span className="flex gap-[var(--space-4)]">
+                {page > 1 && <Link className="font-semibold text-[var(--foreground)]" href={`/applications${withParam(query, "page", String(page - 1))}`}>← Previous</Link>}
+                {skip + PAGE_SIZE < matching && <Link className="font-semibold text-[var(--foreground)]" href={`/applications${withParam(query, "page", String(page + 1))}`}>Next →</Link>}
               </span>
             </nav>
           )}

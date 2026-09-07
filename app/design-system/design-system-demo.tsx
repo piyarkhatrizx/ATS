@@ -25,10 +25,10 @@ import {
 
 function Section({ title, note, children }: { title: string; note?: string; children: React.ReactNode }) {
   return (
-    <section className="mb-10">
+    <section className="mb-[var(--space-10)]">
       <h2 className="text-[var(--text-lg)] font-semibold tracking-[-0.02em]">{title}</h2>
-      {note && <p className="mt-1 max-w-2xl text-[var(--text-sm)] text-[var(--ink-muted)]">{note}</p>}
-      <div className="mt-4">{children}</div>
+      {note && <p className="mt-[var(--space-1)] max-w-2xl text-[var(--text-sm)] text-[var(--ink-muted)]">{note}</p>}
+      <div className="mt-[var(--space-4)]">{children}</div>
     </section>
   );
 }
@@ -45,17 +45,17 @@ export function DesignSystemDemo() {
   const [selected, setSelected] = useState<string | null>(null);
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-10">
-      <header className="mb-10">
-        <p className="text-[var(--text-xs)] font-semibold uppercase tracking-[0.2em] text-[var(--accent)]">
+    <div className="k-shell">
+      <header className="mb-[var(--space-10)]">
+        <p className="text-[var(--text-xs)] font-semibold uppercase tracking-[0.2em] text-[var(--ink-faint)]">
           Korosha
         </p>
-        <h1 className="mt-2 font-display text-[var(--text-2xl)] font-semibold tracking-[-0.03em]">
+        <h1 className="mt-[var(--space-2)] font-display text-[var(--text-2xl)] font-semibold tracking-[-0.03em]">
           Design system
         </h1>
-        <p className="mt-2 max-w-2xl text-[var(--text-sm)] text-[var(--ink-muted)]">
-          Dark glassmorphism. Panels are dark; purple appears only in the ambient glow, borders,
-          focus rings and primary buttons. Every color here comes from styles/tokens.css.
+        <p className="mt-[var(--space-2)] max-w-2xl text-[var(--text-sm)] text-[var(--ink-muted)]">
+          Light glassmorphism. Purple is never ink: it appears in borders, focus rings, primary
+          button fills and status tints. Every color here comes from styles/tokens.css.
         </p>
       </header>
 
@@ -63,11 +63,11 @@ export function DesignSystemDemo() {
         title="Glass card"
         note="One blur layer per element. An inner region uses a flat surface rather than a second blur."
       >
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-[var(--space-4)] sm:grid-cols-2">
           <GlassCard>
-            <GlassCardHeader title="Standard panel" description="Blurred over the ambient glow." />
+            <GlassCardHeader title="Standard panel" description="One blur layer over the page." />
             <p className="text-[var(--text-sm)] text-[var(--ink-muted)]">
-              Body text always sits on this dark surface, never directly on a glow.
+              Body text sits on the panel, never on a bare tint.
             </p>
           </GlassCard>
           <GlassCard>
@@ -76,7 +76,7 @@ export function DesignSystemDemo() {
               description="Header actions sit right."
               actions={<KButton size="sm">Edit</KButton>}
             />
-            <GlassCard flat padded className="mt-1">
+            <GlassCard flat padded className="mt-[var(--space-1)]">
               <p className="text-[var(--text-sm)] text-[var(--ink-muted)]">
                 Nested region: flat, so the blur is not stacked.
               </p>
@@ -86,7 +86,7 @@ export function DesignSystemDemo() {
       </Section>
 
       <Section title="Buttons" note="Accent is the only purple fill in the product.">
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-[var(--space-2)]">
           <KButton variant="accent">Call lead</KButton>
           <KButton variant="ghost">Add note</KButton>
           <KButton variant="danger">Reject</KButton>
@@ -94,7 +94,7 @@ export function DesignSystemDemo() {
           <KButton variant="accent" loading>Saving</KButton>
           <KButton variant="ghost" disabled>Disabled</KButton>
         </div>
-        <div className="mt-3 flex flex-wrap items-center gap-2">
+        <div className="mt-[var(--space-3)] flex flex-wrap items-center gap-[var(--space-2)]">
           <KButton size="sm">Small</KButton>
           <KButton size="md">Medium</KButton>
           <KButton size="lg">Large</KButton>
@@ -105,12 +105,12 @@ export function DesignSystemDemo() {
         title="Status pill"
         note="Colors are token names stored on the Status row, never raw hex, so a recruiter cannot create a status that fails contrast."
       >
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-[var(--space-2)]">
           {STATUS_COLOR_TOKENS.map((token) => (
             <StatusPill key={token} color={token} label={token.replace("--status-", "")} />
           ))}
           <StatusPill color="--not-a-real-token" label="unknown → neutral" />
-          <span className="ml-2 inline-flex items-center gap-1.5 text-[var(--text-sm)] text-[var(--ink-muted)]">
+          <span className="ml-[var(--space-2)] inline-flex items-center gap-[var(--space-1)] text-[var(--text-sm)] text-[var(--ink-muted)]">
             <StatusDot color="--status-accepted" /> dot variant
           </span>
         </div>
@@ -159,7 +159,7 @@ export function DesignSystemDemo() {
       </Section>
 
       <Section title="Empty state">
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-[var(--space-4)] sm:grid-cols-2">
           <KEmptyState
             title="No leads yet"
             description="Submissions from the apply page land here the moment they arrive."
