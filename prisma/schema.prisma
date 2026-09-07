@@ -125,7 +125,6 @@ model Application {
   appliedAt  DateTime          @default(now())
   autoRejectedRuleId String?
   autoRejectedReason String?
-  firstCalledAt      DateTime?
   candidate  Candidate         @relation(fields: [candidateId], references: [id], onDelete: Cascade)
   job        Job?              @relation(fields: [jobId], references: [id], onDelete: SetNull)
   statusRef  Status            @relation(fields: [statusId], references: [id], onDelete: Restrict)
