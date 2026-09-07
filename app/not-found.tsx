@@ -3,7 +3,7 @@ import { PageHeader } from "@/components/ui/page-header";
 
 export default function NotFound() {
   return (
-    <main className="min-h-screen px-6 py-4">
+    <main className="min-h-screen px-6 py-8 sm:px-10 lg:px-16">
       <PageHeader title="Not found" />
       <div className="mt-4">
         <EmptyState

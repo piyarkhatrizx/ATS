@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import Link from "next/link";
 import type { ApplicationStatus } from "@prisma/client";
 import { APPLICATION_STATUSES, statusLabel, statusTone } from "@/lib/application-status";
 import { Avatar, AvatarGroup, AvatarWithLabel } from "@/components/ui/avatar";
@@ -21,6 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
+import { PageHeader } from "@/components/ui/page-header";
 import { Select } from "@/components/ui/select";
 import { SlideOver } from "@/components/ui/slide-over";
 import { StatusSelect } from "@/components/ui/status-select";
@@ -133,21 +133,11 @@ export default function DesignSystemDemo() {
   return (
     <main className="min-h-screen px-6 py-8">
       <div className="mx-auto max-w-5xl space-y-8">
-        <header className="pb-2">
-          <p className="text-[var(--text-xs)] font-semibold uppercase tracking-[0.16em] text-[var(--accent-deep)]">
-            Northstar ATS
-          </p>
-          <h1 className="mt-1 text-[var(--text-xl)] font-semibold tracking-[-0.03em]">
-            Component reference
-          </h1>
-          <p className="mt-1 max-w-2xl text-[var(--text-sm)] text-[var(--ink-muted)]">
-            Every component in every state. Density first: this is a tool a recruiter keeps open all
-            day, not a landing page.{" "}
-            <Link href="/" className="text-[var(--accent-deep)] underline underline-offset-2">
-              Back to desk
-            </Link>
-          </p>
-        </header>
+        <PageHeader
+          eyebrow="Northstar ATS"
+          title="Component reference"
+          subtitle="Every component in every state. Density first: this is a tool a recruiter keeps open all day, not a landing page."
+        />
 
         <Section id="buttons" title="Button" note="4 variants · 3 sizes · disabled · loading">
           <Row label="Primary">

@@ -2,9 +2,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { Badge } from "@/components/ui/badge";
+import { PageHeader } from "@/components/ui/page-header";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table";
-import { APPLICATION_SOURCES, parseSourceParam, sourceLabel, sourceTone } from "@/lib/application-source";
+import { APPLICATION_SOURCES, sourceLabel, sourceTone } from "@/lib/application-source";
 import { statusLabel, statusTone } from "@/lib/application-status";
+import { PAGE_SIZE, parseListParams, withParam, type ListSearchParams } from "@/lib/list-params";
 
 export const dynamic = "force-dynamic";
 
@@ -13,18 +15,22 @@ export default async function JobApplicationsPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ source?: string | string[] }>;
+  searchParams: Promise<ListSearchParams>;
 }) {
   const { id } = await params;
-  const source = parseSourceParam((await searchParams).source);
+  const query = await searchParams;
+  const { source, status, orderBy, skip, take, page } = parseListParams("applications", query);
 
   const job = await prisma.job.findUnique({ where: { id } });
   if (!job) notFound();
 
-  const [applications, sourceCounts] = await Promise.all([
+  const where = { jobId: id, ...(source ? { source } : {}), ...(status ? { status } : {}) };
+  const [applications, sourceCounts, matching] = await Promise.all([
     prisma.application.findMany({
-      where: { jobId: id, ...(source ? { source } : {}) },
-      orderBy: { appliedAt: "desc" },
+      where,
+      orderBy,
+      skip,
+      take,
       include: { candidate: true, documents: { select: { parseStatus: true } } },
     }),
     prisma.application.groupBy({
@@ -32,6 +38,7 @@ export default async function JobApplicationsPage({
       where: { jobId: id },
       _count: { _all: true },
     }),
+    prisma.application.count({ where }),
   ]);
 
   const countBySource = new Map(sourceCounts.map((row) => [row.source, row._count._all]));
@@ -48,11 +55,12 @@ export default async function JobApplicationsPage({
   return (
     <main className="min-h-screen px-6 py-8 sm:px-10 lg:px-16">
       <div className="mx-auto max-w-6xl">
-        <Link href="/" className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--accent-deep)]">← all requisitions</Link>
-        <header className="mt-10 flex flex-col justify-between gap-4 border-b border-[var(--line)] pb-8 sm:flex-row sm:items-end">
-          <div><p className="font-mono text-xs text-[var(--accent-deep)]">{job.reqCode} / {job.ingestAlias}</p><h1 className="mt-3 text-4xl font-semibold tracking-[-0.04em]">{job.title}</h1></div>
-          <p className="text-sm text-[var(--ink-muted)]">{total} applications · newest first</p>
-        </header>
+        <PageHeader
+          breadcrumb={[{ label: "Jobs", href: "/" }, { label: job.title }]}
+          eyebrow={`${job.reqCode} / ${job.ingestAlias}`}
+          title={job.title}
+          subtitle={`${total} applications · newest first`}
+        />
 
         <nav aria-label="Filter by source" className="mt-8 flex flex-wrap gap-2">
           {filters.map((filter) => {
@@ -60,7 +68,7 @@ export default async function JobApplicationsPage({
             return (
               <Link
                 key={filter.label}
-                href={filter.key ? `/jobs/${job.id}?source=${filter.key}` : `/jobs/${job.id}`}
+                href={`/jobs/${job.id}${withParam(query, "source", filter.key)}`}
                 aria-current={active ? "page" : undefined}
                 className={`inline-flex min-h-8 items-center gap-2 border px-3 text-xs font-semibold uppercase tracking-[0.12em] transition-colors ${
                   active
@@ -92,6 +100,17 @@ export default async function JobApplicationsPage({
             })}</TableBody>
           </Table>
           {!applications.length && <p className="p-8 text-sm text-[var(--ink-muted)]">{source ? `No applications from ${sourceLabel[source].toLowerCase()} for this requisition.` : "No applications have arrived for this requisition."}</p>}
+          {matching > PAGE_SIZE && (
+            <nav aria-label="Pagination" className="mt-6 flex items-center justify-between border-t border-[var(--line)] pt-4 text-sm">
+              <span className="text-[var(--ink-muted)]">
+                {skip + 1}–{Math.min(skip + PAGE_SIZE, matching)} of {matching}
+              </span>
+              <span className="flex gap-4">
+                {page > 1 && <Link className="font-semibold text-[var(--accent-deep)]" href={`/jobs/${job.id}${withParam(query, "page", String(page - 1))}`}>← Previous</Link>}
+                {skip + PAGE_SIZE < matching && <Link className="font-semibold text-[var(--accent-deep)]" href={`/jobs/${job.id}${withParam(query, "page", String(page + 1))}`}>Next →</Link>}
+              </span>
+            </nav>
+          )}
         </div>
       </div>
     </main>

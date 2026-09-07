@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { SectionLabel } from "@/components/ui/section-label";
 
 const NAV = [
   { href: "/", label: "Jobs", glyph: "J" },
@@ -47,9 +48,9 @@ export function AppSidebar({ initialCollapsed }: { initialCollapsed: boolean }) 
     >
       <div className="flex items-center justify-between px-1 pb-2">
         {!collapsed && (
-          <span className="truncate text-xs font-semibold uppercase tracking-[0.16em] text-[var(--accent-deep)]">
+          <SectionLabel as="span" className="truncate">
             Northstar
-          </span>
+          </SectionLabel>
         )}
         <button
           type="button"

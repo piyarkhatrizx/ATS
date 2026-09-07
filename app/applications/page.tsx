@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
+import { PageHeader } from "@/components/ui/page-header";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table";
 
 export const dynamic = "force-dynamic";
@@ -29,17 +32,16 @@ export default async function CaregiverApplicationsPage() {
   return (
     <main className="min-h-screen px-6 py-8 sm:px-10 lg:px-16">
       <div className="mx-auto max-w-7xl">
-        <header className="flex flex-col justify-between gap-6 border-b border-[var(--line)] pb-8 sm:flex-row sm:items-end">
-          <div>
-            <Link href="/" className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--accent-deep)]">← recruiting desk</Link>
-            <p className="mt-8 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent-deep)]">Care team intake</p>
-            <h1 className="mt-3 text-4xl font-semibold tracking-[-0.04em] sm:text-5xl">Caregiver applications</h1>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-[var(--ink-muted)]">{applications.length} received</span>
-            <Link href="/apply" className="ui-button inline-flex h-10 items-center justify-center border border-transparent bg-[var(--accent-deep)] px-4 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--on-accent)] hover:bg-[var(--accent-strong)]">Open application</Link>
-          </div>
-        </header>
+        <PageHeader
+          eyebrow="Care team intake"
+          title="Caregiver applications"
+          subtitle={`${applications.length} received`}
+          actions={
+            <Button asChild>
+              <Link href="/apply">Open application</Link>
+            </Button>
+          }
+        />
 
         <div className="mt-8">
           <Table className="min-w-[1050px]">
@@ -68,7 +70,14 @@ export default async function CaregiverApplicationsPage() {
               ))}
             </TableBody>
           </Table>
-          {!applications.length && <p className="p-10 text-sm text-[var(--ink-muted)]">No caregiver applications have been submitted yet.</p>}
+          {!applications.length && (
+            <EmptyState
+              className="border-t-0"
+              title="No caregiver applications yet"
+              description="Submissions from the public application page land here the moment they are received."
+              action={{ label: "Open application form", href: "/apply" }}
+            />
+          )}
         </div>
       </div>
     </main>

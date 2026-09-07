@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHeader, TableLoadingRow } from "@/com
 /** One root loading state covers every segment; nothing here needs a per-route copy. */
 export default function Loading() {
   return (
-    <main className="min-h-screen px-6 py-4">
+    <main className="min-h-screen px-6 py-8 sm:px-10 lg:px-16">
       <PageHeader title="Loading" />
       <div className="mt-4">
         <Table>

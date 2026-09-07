@@ -3,6 +3,7 @@
 import * as RadixDialog from "@radix-ui/react-dialog";
 import type { ReactNode } from "react";
 import { DialogClose } from "./dialog";
+import { SectionLabel } from "./section-label";
 
 /**
  * Same Radix primitive as Dialog, anchored to the right edge. It enters and
@@ -37,9 +38,7 @@ export function SlideOver({
           <header className="flex items-start justify-between gap-4 border-b border-[var(--line)] px-5 py-3">
             <div className="min-w-0">
               {eyebrow && (
-                <p className="text-[var(--text-xs)] font-semibold uppercase tracking-[0.14em] text-[var(--accent-deep)]">
-                  {eyebrow}
-                </p>
+                <SectionLabel>{eyebrow}</SectionLabel>
               )}
               <RadixDialog.Title className="text-[var(--text-lg)] font-semibold tracking-[-0.02em]">
                 {title}

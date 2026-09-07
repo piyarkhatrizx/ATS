@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 
@@ -22,7 +21,7 @@ export default function Error({
   }, [error]);
 
   return (
-    <main className="min-h-screen px-6 py-4">
+    <main className="min-h-screen px-6 py-8 sm:px-10 lg:px-16">
       <PageHeader title="Something went wrong" />
       <div className="mt-4">
         <EmptyState

@@ -19,9 +19,40 @@ S3-compatible storage, Twilio Voice, Anthropic API for parsing.
 - Dedupe on email, then phone. Never on name alone.
 - Candidate data is sensitive personal information. No PII in logs, no PII in error messages sent to the client.
 
+## Intake
+
+- `lib/intake.ts` is the only code path that may create a Candidate. Both the
+  apply form and the resume parser call `intakeApplication`. Do not create a
+  Candidate or Application anywhere else.
+- Resume parsing belongs to the email path only. `/apply` submits a structured
+  form with no attachment: no Document, no ParseJob, no Anthropic call.
+- `Application.source` is an `ApplicationSource` enum. Re-applying never resets
+  `status` and never overwrites `source`; it merges `screening` and logs
+  `REAPPLIED`.
+- `/apply` resolves its requisition by `CAREGIVER_JOB_ALIAS` (default
+  `"caregiver"`). Seed it with `npm run seed:caregiver-job`.
+
+## List views
+
+Every list view reads `?source=&status=&sort=&dir=&page=` through
+`parseListParams` in `lib/list-params.ts`. Do not read `searchParams` directly
+in a page.
+
+- Sort keys are allowlisted per view in `SORT_KEYS`. An unknown key falls back
+  to the view's default and is reported in `rejected` — it never reaches Prisma.
+- Filtering, sorting and pagination happen in the database. Never fetch a table
+  and filter in the component.
+- `withParam(query, key, value)` builds links that preserve the other params;
+  changing any of them resets `page`.
+
 ## Testing
 
 Vitest. Every ingest and dedupe change needs a test. Fixtures live in `test/fixtures/`.
+
+Tests in `test/intake/` that touch the database are gated on `DATABASE_URL` and
+run against the real dev database; they create their own job with a timestamped
+`ingestAlias` and clean up in `afterAll`. `test/intake/list-params.test.ts` is
+pure and needs no database.
 
 ## Commands
 

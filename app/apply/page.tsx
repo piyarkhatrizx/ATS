@@ -1,4 +1,5 @@
 import ApplyForm from "@/app/apply/apply-form";
+import { SectionLabel } from "@/components/ui/section-label";
 
 export const metadata = {
   title: "Caregiver application | Northstar",
@@ -18,7 +19,7 @@ export default function ApplyPage() {
           <p className="mt-12 text-xs uppercase tracking-[0.15em] text-[var(--on-sidebar-faint)]">Caregiver application · 2 minutes</p>
         </section>
         <section className="ui-material p-6 sm:p-10 lg:p-14">
-          <div className="mb-10 border-b border-[var(--line)] pb-6"><p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent-deep)]">Application form</p><h2 className="mt-3 text-3xl font-semibold tracking-[-0.04em]">Let&apos;s get to know you</h2><p className="mt-2 text-sm text-[var(--ink-muted)]"><span className="text-[var(--accent-deep)]">*</span> Required fields · CPA certification is optional</p></div>
+          <div className="mb-10 border-b border-[var(--line)] pb-6"><SectionLabel>Application form</SectionLabel><h2 className="mt-3 text-3xl font-semibold tracking-[-0.04em]">Let&apos;s get to know you</h2><p className="mt-2 text-sm text-[var(--ink-muted)]"><span className="text-[var(--accent-deep)]">*</span> Required fields · CPA certification is optional</p></div>
           <ApplyForm />
         </section>
       </div>

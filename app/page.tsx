@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/ui/page-header";
+import { SectionLabel } from "@/components/ui/section-label";
 import { EmptyState } from "@/components/ui/empty-state";
 import { APPLICATION_SOURCES, sourceLabel } from "@/lib/application-source";
 
@@ -27,17 +30,16 @@ export default async function Home() {
   return (
     <main className="min-h-screen px-6 py-8 sm:px-10 lg:px-16">
       <div className="mx-auto max-w-6xl">
-        <header className="ui-material flex items-end justify-between border-b border-[var(--line)] pb-8">
-          <div>
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent-deep)]">Northstar / recruiting desk</p>
-            <h1 className="text-4xl font-semibold tracking-[-0.04em] sm:text-5xl">Open requisitions</h1>
-          </div>
-          <div className="flex items-center gap-4">
-            <Link href="/applications" className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--accent-deep)] hover:underline">Caregiver applications</Link>
-            <span className="hidden text-sm text-[var(--ink-muted)] sm:block">{jobs.length} active tracks · {unroutedCount} unrouted</span>
-          </div>
-        </header>
-        {forwarding.length > 0 && <section className="mt-6 border border-[var(--accent-tint-line)] bg-[var(--accent-tint)] p-5"><p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--accent-deep)]">Gmail forwarding verification</p><div className="mt-3 flex flex-wrap items-center gap-x-8 gap-y-2">{forwarding.map((verification) => <div key={verification.id}><span className="font-mono text-xl tracking-[0.14em]">{verification.code}</span><span className="ml-3 text-xs text-[var(--ink-muted)]">{verification.createdAt.toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span></div>)}</div></section>}
+        <PageHeader
+          title="Open requisitions"
+          subtitle={`${jobs.length} active tracks · ${unroutedCount} unrouted`}
+          actions={
+            <Button asChild variant="secondary">
+              <Link href="/applications">Caregiver applications</Link>
+            </Button>
+          }
+        />
+        {forwarding.length > 0 && <section className="mt-6 border border-[var(--accent-tint-line)] bg-[var(--accent-tint)] p-5"><SectionLabel>Gmail forwarding verification</SectionLabel><div className="mt-3 flex flex-wrap items-center gap-x-8 gap-y-2">{forwarding.map((verification) => <div key={verification.id}><span className="font-mono text-xl tracking-[0.14em]">{verification.code}</span><span className="ml-3 text-xs text-[var(--ink-muted)]">{verification.createdAt.toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span></div>)}</div></section>}
         <section className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {jobs.map((job) => (
             <Link key={job.id} href={`/jobs/${job.id}`} className="group border border-[var(--line)] bg-[var(--surface)] p-6 transition-colors hover:border-[var(--accent)]">

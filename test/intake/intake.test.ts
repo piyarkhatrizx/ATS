@@ -50,6 +50,7 @@ describeIntegration("intake", () => {
   let intakeApplication: typeof import("@/lib/intake").intakeApplication;
   let processParseJob: typeof import("@/lib/parser").processParseJob;
   let applyPost: typeof import("@/app/api/apply/route").POST;
+  let moveApplicationStatus: typeof import("@/app/actions/application").moveApplicationStatus;
 
   const stamp = Date.now();
   const alias = `caregiver-test-${stamp}`;
@@ -92,6 +93,7 @@ describeIntegration("intake", () => {
     ({ intakeApplication } = await import("@/lib/intake"));
     ({ processParseJob } = await import("@/lib/parser"));
     ({ POST: applyPost } = await import("@/app/api/apply/route"));
+    ({ moveApplicationStatus } = await import("@/app/actions/application"));
     process.env.ANTHROPIC_API_KEY = "integration-test-key";
 
     const job = await prisma.job.create({
@@ -105,11 +107,17 @@ describeIntegration("intake", () => {
   });
 
   afterAll(async () => {
+    if (!prisma) return;
     for (const id of createdCandidateIds) {
       await prisma.candidate.delete({ where: { id } }).catch(() => undefined);
     }
-    await prisma.job.deleteMany({ where: { id: { in: [jobId, otherJobId] } } });
-    await prisma.$disconnect();
+    // Guard against a failed beforeAll: an undefined id here throws a Prisma
+    // validation error that buries the real reason the suite could not start.
+    const jobIds = [jobId, otherJobId].filter(Boolean);
+    if (jobIds.length) {
+      await prisma.job.deleteMany({ where: { id: { in: jobIds } } }).catch(() => undefined);
+    }
+    await prisma.$disconnect().catch(() => undefined);
   });
 
   it("creates candidate, application and activity with no document or parse job", async () => {
@@ -249,6 +257,52 @@ describeIntegration("intake", () => {
     expect(candidate.currentTitle).toBe("Research Mathematician");
     expect(candidate.currentEmployer).toBe("NASA");
     expect(candidate.linkedinUrl).toBe("https://linkedin.com/in/kjohnson");
+  });
+
+  it("moves status writing exactly one activity, and rejects a no-op", async () => {
+    const intake = track(
+      await intakeApplication({
+        jobId: otherJobId,
+        source: "MANUAL",
+        firstName: "Dorothy",
+        lastName: "Vaughan",
+        email: `status-${stamp}@example.com`,
+        phone: "555-808-0808",
+      }),
+    );
+
+    const activitiesBefore = await prisma.activity.count({
+      where: { applicationId: intake.applicationId, type: "STATUS_CHANGED" },
+    });
+
+    const moved = await moveApplicationStatus(intake.applicationId, "SCREENING");
+    expect(moved.ok).toBe(true);
+
+    const application = await prisma.application.findUniqueOrThrow({
+      where: { id: intake.applicationId },
+    });
+    expect(application.status).toBe("SCREENING");
+
+    const changes = await prisma.activity.findMany({
+      where: { applicationId: intake.applicationId, type: "STATUS_CHANGED" },
+    });
+    expect(changes).toHaveLength(activitiesBefore + 1);
+    expect(changes[0].payload).toMatchObject({ from: "NEW", to: "SCREENING" });
+
+    // A no-op is refused and writes nothing.
+    const repeat = await moveApplicationStatus(intake.applicationId, "SCREENING");
+    expect(repeat.ok).toBe(false);
+    if (!repeat.ok) expect(repeat.error).toBeTruthy();
+    expect(
+      await prisma.activity.count({
+        where: { applicationId: intake.applicationId, type: "STATUS_CHANGED" },
+      }),
+    ).toBe(activitiesBefore + 1);
+  });
+
+  it("rejects a move on an application that does not exist", async () => {
+    const result = await moveApplicationStatus("cl00000000000000000000000", "OFFER");
+    expect(result.ok).toBe(false);
   });
 
   it("produces structurally equivalent rows from email ingest and the apply form", async () => {
