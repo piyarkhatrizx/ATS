@@ -4,10 +4,11 @@ import "./globals.css";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SIDEBAR_COOKIE } from "@/lib/sidebar-cookie";
 import { Toaster } from "@/components/ui/toast";
+import { GlowLayer } from "@/components/korosha/glow-layer";
 
 export const metadata: Metadata = {
   title: "Korosha",
-  description: "Resume intake and recruiting pipeline",
+  description: "Lead response system. Speed to first contact.",
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
@@ -18,6 +19,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className="h-full antialiased">
       <body className="flex min-h-full">
+        <GlowLayer />
         <AppSidebar initialCollapsed={collapsed} />
         <div className="flex min-w-0 flex-1 flex-col">{children}</div>
         <Toaster />

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { EmptyState } from "@/components/ui/empty-state";
+import { KEmptyState } from "@/components/korosha/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table";
 import { PAGE_SIZE, parseListParams, withParam, type ListSearchParams } from "@/lib/list-params";
@@ -80,7 +80,7 @@ export default async function CandidatesPage({
             </TableBody>
           </Table>
         ) : (
-          <EmptyState
+          <KEmptyState
             title="No candidates yet"
             description="Candidates appear here once a resume is forwarded to an intake alias or an application is submitted."
           />

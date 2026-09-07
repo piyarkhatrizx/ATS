@@ -4,7 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 import { SectionLabel } from "@/components/ui/section-label";
-import { EmptyState } from "@/components/ui/empty-state";
+import { KEmptyState } from "@/components/korosha/empty-state";
+import { GlassCard } from "@/components/korosha/glass-card";
 import { APPLICATION_SOURCES, sourceLabel } from "@/lib/application-source";
 
 export const dynamic = "force-dynamic";
@@ -45,7 +46,7 @@ export default async function Home() {
         {forwarding.length > 0 && <section className="mt-6 border border-[var(--accent-tint-line)] bg-[var(--accent-tint)] p-5"><SectionLabel>Gmail forwarding verification</SectionLabel><div className="mt-3 flex flex-wrap items-center gap-x-8 gap-y-2">{forwarding.map((verification) => <div key={verification.id}><span className="font-mono text-xl tracking-[0.14em]">{verification.code}</span><span className="ml-3 text-xs text-[var(--ink-muted)]">{verification.createdAt.toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span></div>)}</div></section>}
         <section className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {jobs.map((job) => (
-            <Link key={job.id} href={`/jobs/${job.id}`} className="group border border-[var(--line)] bg-[var(--surface)] p-6 transition-colors hover:border-[var(--accent)]">
+            <Link key={job.id} href={`/jobs/${job.id}`} className="group block border border-[var(--glass-border)] k-glass p-5 transition-colors hover:border-[var(--accent)]">
               <div className="flex items-start justify-between gap-5">
                 <span className="font-mono text-xs text-[var(--accent-deep)]">{job.reqCode}</span>
                 <Badge tone={job.status === "OPEN" ? "success" : "neutral"}>{job.status.toLowerCase()}</Badge>
@@ -65,7 +66,7 @@ export default async function Home() {
               </dl>
             </Link>
           ))}
-          {!jobs.length && <div className="col-span-full"><EmptyState title="No open requisitions" description="Add a job record to begin receiving resumes into the recruiting desk." /></div>}
+          {!jobs.length && <div className="col-span-full"><KEmptyState title="No open requisitions" description="Add a job record to begin receiving leads into the desk." /></div>}
         </section>
       </div>
     </main>

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { EmptyState } from "@/components/ui/empty-state";
+import { KEmptyState } from "@/components/korosha/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table";
 import { statusLabel, statusTone } from "@/lib/application-status";
@@ -121,7 +121,7 @@ export default async function CaregiverApplicationsPage({
             </TableBody>
           </Table>
           {!applications.length && (
-            <EmptyState
+            <KEmptyState
               className="border-t-0"
               title="No caregiver applications yet"
               description="Submissions from the public application page land here the moment they are received."

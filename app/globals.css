@@ -1,59 +1,6 @@
 @import "tailwindcss";
 @import "../styles/tokens.css";
 
-:root {
-  --background: #f5f2eb;
-  --foreground: #18221f;
-  --ink-muted: #68736e;
-  --line: #d9ddd4;
-  --accent: #d36b43;
-  --accent-deep: #994b2e;
-  --surface: #fbfaf6;
-  --surface-raised: rgb(255 255 255 / 0.72);
-  --surface-sidebar: rgb(29 48 43 / 0.94);
-  --scrim: rgb(24 34 31 / 0.32);
-  --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
-  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif;
-  --font-mono-ui: "SF Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-
-  /* Type scale: compact enough for long recruiter sessions, with one clear display step. */
-  --text-xs: 0.6875rem;
-  --text-sm: 0.8125rem;
-  --text-md: 0.9375rem;
-  --text-lg: 1.125rem;
-  --text-xl: 1.5rem;
-  --text-2xl: 2.25rem;
-
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-5: 1.25rem;
-  --space-6: 1.5rem;
-  --space-8: 2rem;
-  --space-10: 2.5rem;
-  --space-12: 3rem;
-
-  --status-new: #526b84;
-  --status-screening: #765e9a;
-  --status-phone: #a66b2c;
-  --status-interview: #26756d;
-  --status-offer: #8c5a28;
-  --status-hired: #2c7650;
-  --status-rejected: #a64943;
-  --status-withdrawn: #68736e;
-
-  --shadow-panel: 0 10px 30px rgb(24 34 31 / 0.08), 0 2px 8px rgb(24 34 31 / 0.05);
-  --shadow-dialog: 0 24px 70px rgb(24 34 31 / 0.18), 0 4px 16px rgb(24 34 31 / 0.08);
-  --shadow-focus: 0 0 0 3px rgb(211 107 67 / 0.18);
-
-  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
-  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
-  --duration-press: 140ms;
-  --duration-popover: 180ms;
-  --duration-drawer: 260ms;
-}
 
 @theme inline {
   --color-background: var(--background);
@@ -79,9 +26,10 @@ h3 {
 }
 
 .ui-material {
-  background: var(--surface-raised);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  backdrop-filter: blur(20px) saturate(180%);
+  background: var(--glass-bg);
+  border-color: var(--glass-border);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
 }
 
 button,
@@ -148,82 +96,16 @@ summary:focus-visible {
 
 @media (prefers-reduced-transparency: reduce) {
   .ui-material {
-    background: var(--surface);
+    background: var(--surface-raised);
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
 }
 
-@media (prefers-contrast: more) {
-  :root {
-    --surface-raised: var(--surface);
-    --line: #87918b;
-    --ink-muted: #46534d;
-  }
-}
-
 ::selection {
-  background: #f2c7b4;
+  background: var(--accent-tint);
 }
 
-/* ============================================================
-   Component-layer tokens (additive — foundation above unchanged)
-   Every value below is derived from an existing token so a single
-   palette edit still propagates. color-mix resolves lazily, so the
-   prefers-contrast overrides above flow through automatically.
-   ============================================================ */
-
-:root {
-  /* Neutral surfaces: rows, chips, ghost-button hover, table header */
-  --surface-sunken: color-mix(in oklab, var(--foreground) 6%, var(--background));
-  --surface-hover: color-mix(in oklab, var(--foreground) 5%, var(--surface));
-  --surface-header: color-mix(in oklab, var(--foreground) 3%, var(--surface));
-  --surface-selected: color-mix(in oklab, var(--accent) 12%, var(--surface));
-  --surface-selected-line: color-mix(in oklab, var(--accent) 34%, var(--surface));
-
-  /* Accent ramp */
-  --accent-strong: color-mix(in oklab, var(--accent-deep) 84%, var(--foreground));
-  --accent-tint: color-mix(in oklab, var(--accent) 8%, var(--surface));
-  --accent-tint-line: color-mix(in oklab, var(--accent) 32%, var(--surface));
-  --on-accent: #ffffff;
-
-  /* Destructive */
-  --danger: var(--status-rejected);
-  --danger-strong: color-mix(in oklab, var(--status-rejected) 82%, var(--foreground));
-  --danger-tint: color-mix(in oklab, var(--status-rejected) 10%, var(--surface));
-
-  /* Status tints — badge/chip fills and hairlines, derived from --status-* */
-  --status-new-tint: color-mix(in oklab, var(--status-new) 12%, var(--surface));
-  --status-new-line: color-mix(in oklab, var(--status-new) 34%, var(--surface));
-  --status-screening-tint: color-mix(in oklab, var(--status-screening) 12%, var(--surface));
-  --status-screening-line: color-mix(in oklab, var(--status-screening) 34%, var(--surface));
-  --status-phone-tint: color-mix(in oklab, var(--status-phone) 12%, var(--surface));
-  --status-phone-line: color-mix(in oklab, var(--status-phone) 34%, var(--surface));
-  --status-interview-tint: color-mix(in oklab, var(--status-interview) 12%, var(--surface));
-  --status-interview-line: color-mix(in oklab, var(--status-interview) 34%, var(--surface));
-  --status-offer-tint: color-mix(in oklab, var(--status-offer) 12%, var(--surface));
-  --status-offer-line: color-mix(in oklab, var(--status-offer) 34%, var(--surface));
-  --status-hired-tint: color-mix(in oklab, var(--status-hired) 12%, var(--surface));
-  --status-hired-line: color-mix(in oklab, var(--status-hired) 34%, var(--surface));
-  --status-rejected-tint: color-mix(in oklab, var(--status-rejected) 12%, var(--surface));
-  --status-rejected-line: color-mix(in oklab, var(--status-rejected) 34%, var(--surface));
-  --status-withdrawn-tint: color-mix(in oklab, var(--status-withdrawn) 12%, var(--surface));
-  --status-withdrawn-line: color-mix(in oklab, var(--status-withdrawn) 34%, var(--surface));
-
-  /* Avatar fallback */
-  --avatar-tint: color-mix(in oklab, var(--status-interview) 16%, var(--surface));
-  --avatar-ink: color-mix(in oklab, var(--status-interview) 72%, var(--foreground));
-
-  /* Foreground colors for the dark sidebar material */
-  --on-sidebar: var(--background);
-  --on-sidebar-muted: color-mix(in oklab, var(--background) 74%, var(--surface-sidebar));
-  --on-sidebar-faint: color-mix(in oklab, var(--background) 56%, var(--surface-sidebar));
-  --on-sidebar-accent: color-mix(in oklab, var(--accent) 62%, var(--background));
-
-  /* Dense list metrics: 28px rows keep ~25 candidates on a laptop screen */
-  --row-height: 1.75rem;
-  --duration-exit: 120ms;
-}
 
 /* Toolbars / sticky table headers that float over scrolling content.
    Scroll-edge shadow instead of a hard 1px divider (Apple: materials). */
@@ -232,7 +114,7 @@ summary:focus-visible {
   top: 0;
   z-index: 2;
   background: var(--surface-header);
-  box-shadow: 0 1px 0 var(--line), 0 6px 12px -12px rgb(24 34 31 / 0.5);
+  box-shadow: 0 1px 0 var(--line), 0 6px 12px -12px rgb(0 0 0 / 0.6);
 }
 
 /* Overlay motion for the Radix-driven Dialog / SlideOver / DropdownMenu.
@@ -311,4 +193,31 @@ summary:focus-visible {
   .ui-menu[data-state] {
     animation-duration: 1ms;
   }
+}
+
+/* ===========================================================================
+   Korosha glass.
+
+   ONE backdrop-filter per element. Never nest .k-glass inside .k-glass — a
+   second blur layer compounds the first and turns the panel to mud. Use a flat
+   surface for inner regions instead.
+   =========================================================================== */
+.k-glass {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+}
+
+/* Translucency is decoration; legibility is not. Drop the blur entirely for a
+   solid dark surface rather than thinning it. */
+@media (prefers-reduced-transparency: reduce) {
+  .k-glass {
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+.font-display {
+  font-family: var(--font-display);
 }

@@ -32,7 +32,10 @@
   /* Text: always on a dark surface --------------------------------------- */
   --foreground: #f4f2f6;
   --ink-muted: #a09aa8;
-  --ink-faint: #6f6a78;
+  /* 4.96:1 on the glass surface, 5.45:1 on a sunken input — placeholder text
+     is still text, so it clears AA rather than sitting at the 3.5:1 a dimmer
+     grey would give. */
+  --ink-faint: #878291;
   --on-accent: var(--black);
 
   /* Purple, used only as an accent --------------------------------------- */
@@ -88,4 +91,83 @@
    there is one look, and forcing it keeps contrast guarantees intact. */
 :root {
   color-scheme: dark;
+}
+
+/* ===========================================================================
+   Compatibility layer for components/ui/*.
+
+   Those components are still live during the Phase 3 migration and consume
+   these names directly. Defining them here in dark values is what lets the old
+   terracotta :root be deleted without breaking every page at once. Prune this
+   block when components/ui is retired.
+   =========================================================================== */
+:root {
+  --scrim: rgb(0 0 0 / 0.6);
+  --surface-header: rgb(255 255 255 / 0.05);
+  --surface-sidebar: rgb(16 14 20 / 0.92);
+
+  /* The sidebar is already dark, so "on-sidebar" is the same ink as elsewhere. */
+  --on-sidebar: var(--foreground);
+  --on-sidebar-muted: var(--ink-muted);
+  --on-sidebar-faint: var(--ink-faint);
+  --on-sidebar-accent: var(--accent);
+
+  --accent-tint-line: rgb(225 185 240 / 0.34);
+  --danger-tint: rgb(229 107 107 / 0.14);
+
+  --avatar-tint: rgb(225 185 240 / 0.16);
+  --avatar-ink: var(--accent-strong);
+
+  /* Legacy stage colors. On a dark ground these are the LIGHT end of each hue,
+     so text sits at 4.5:1 or better; the tints are low-alpha fills and the
+     lines are hairlines, neither of which carries text. */
+  --status-new: #9fb4d8;
+  --status-screening: #c9a9e8;
+  --status-phone: #e0bd8f;
+  --status-interview: #8fcfc4;
+  --status-offer: #e3c48f;
+  --status-hired: #86d6ae;
+  --status-rejected: #e79a9a;
+  --status-withdrawn: #a9a3b2;
+
+  --status-new-tint: rgb(159 180 216 / 0.14);
+  --status-new-line: rgb(159 180 216 / 0.34);
+  --status-screening-tint: rgb(201 169 232 / 0.14);
+  --status-screening-line: rgb(201 169 232 / 0.34);
+  --status-phone-tint: rgb(224 189 143 / 0.14);
+  --status-phone-line: rgb(224 189 143 / 0.34);
+  --status-interview-tint: rgb(143 207 196 / 0.14);
+  --status-interview-line: rgb(143 207 196 / 0.34);
+  --status-offer-tint: rgb(227 196 143 / 0.14);
+  --status-offer-line: rgb(227 196 143 / 0.34);
+  --status-hired-tint: rgb(134 214 174 / 0.14);
+  --status-hired-line: rgb(134 214 174 / 0.34);
+  --status-rejected-tint: rgb(231 154 154 / 0.14);
+  --status-rejected-line: rgb(231 154 154 / 0.34);
+  --status-withdrawn-tint: rgb(169 163 178 / 0.14);
+  --status-withdrawn-line: rgb(169 163 178 / 0.34);
+
+  --row-height: 1.75rem;
+  --duration-exit: 120ms;
+}
+
+/* Accessibility: drop every blur for a solid dark surface. Translucency is
+   decoration here; legibility is not. */
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --glass-bg: #17141c;
+    --surface: #14111a;
+    --surface-raised: #1b1723;
+    --surface-header: #17141c;
+    --surface-sidebar: #100e14;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --ink-muted: #cfc9d6;
+    --line: rgb(255 255 255 / 0.24);
+    --line-strong: rgb(255 255 255 / 0.36);
+    --glass-bg: #1a1622;
+  }
 }
