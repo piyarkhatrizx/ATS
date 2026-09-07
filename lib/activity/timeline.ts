@@ -5,7 +5,13 @@ export const TIMELINE_PAGE_SIZE = 50;
 
 const timelineInclude = {
   actor: { select: { id: true, name: true, email: true } },
-  application: { select: { id: true, status: true, job: { select: { id: true, title: true } } } },
+  application: {
+    select: {
+      id: true,
+      statusRef: { select: { id: true, label: true, color: true } },
+      job: { select: { id: true, title: true } },
+    },
+  },
 } as const;
 
 type TimelineRow = Awaited<

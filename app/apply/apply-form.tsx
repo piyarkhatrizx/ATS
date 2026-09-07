@@ -46,7 +46,7 @@ export default function ApplyForm() {
     if (response.ok) setForm(initialState);
   }
 
-  if (state === "success") return <div className="border border-[var(--status-hired-line)] bg-[var(--status-hired-tint)] p-6"><p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--status-hired)]">Application received</p><h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em]">Thank you for applying.</h3><p className="mt-3 text-sm leading-6 text-[var(--ink-muted)]">Our care team will review your information and contact you soon.</p><button type="button" onClick={() => setState("idle")} className="mt-6 text-sm font-semibold text-[var(--accent-deep)] underline underline-offset-4">Submit another application</button></div>;
+  if (state === "success") return <div className="border border-[color-mix(in oklab, var(--status-accepted) 34%, transparent)] bg-[color-mix(in oklab, var(--status-accepted) 14%, transparent)] p-6"><p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--status-accepted)]">Application received</p><h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em]">Thank you for applying.</h3><p className="mt-3 text-sm leading-6 text-[var(--ink-muted)]">Our care team will review your information and contact you soon.</p><button type="button" onClick={() => setState("idle")} className="mt-6 text-sm font-semibold text-[var(--accent-deep)] underline underline-offset-4">Submit another application</button></div>;
 
   return <form onSubmit={submit} className="space-y-8">
     <div className="grid gap-7 sm:grid-cols-2">

@@ -11,7 +11,7 @@
  * existing call sites (lib/intake.ts, lib/parser.ts, app/actions/application.ts)
  * because lib/activity/ does not exist yet.
  */
-import { Prisma, type ApplicationSource, type ApplicationStatus } from "@prisma/client";
+import { Prisma, type ApplicationSource } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { activityPayloadSchema } from "@/lib/activity/types";
 
@@ -43,14 +43,15 @@ type SeedCandidate = {
   location: string | null;
   currentTitle: string | null;
   currentEmployer: string | null;
-  status: ApplicationStatus;
+  /** A Status.key; resolved to an id at write time. */
+  status: string;
   source: ApplicationSource;
   daysAgo: number;
   screening?: Screening;
   /** Also applies to the second requisition, to exercise cross-application UI. */
-  alsoOvernight?: { status: ApplicationStatus; source: ApplicationSource; daysAgo: number; screening?: Screening };
+  alsoOvernight?: { status: string; source: ApplicationSource; daysAgo: number; screening?: Screening };
   /** How many extra STATUS_CHANGED rows to write. 0 leaves an empty timeline. */
-  history?: ApplicationStatus[];
+  history?: string[];
 };
 
 // Names run from two letters to forty-plus, with hyphens, accents and a
@@ -198,7 +199,7 @@ const BULK_NAMES: Array<[string, string]> = [
   ["Zara", "Okafor"],
 ];
 
-const BULK_STATUSES: ApplicationStatus[] = [
+const BULK_STATUSES: string[] = [
   "NEW", "NEW", "SCREENING", "PHONE_SCREEN", "INTERVIEW", "SCREENING",
   "REJECTED", "NEW", "OFFER", "SCREENING", "PHONE_SCREEN", "WITHDRAWN",
   "NEW", "INTERVIEW", "SCREENING", "HIRED", "NEW", "PHONE_SCREEN",
@@ -240,6 +241,16 @@ const BULK: SeedCandidate[] = BULK_NAMES.map(([firstName, lastName], index) => {
 const ALL_CANDIDATES: SeedCandidate[] = [...CANDIDATES, ...BULK];
 
 async function main() {
+  // Statuses are rows now; the seed maps its enum-shaped keys onto them.
+  const statusByKey = new Map(
+    (await prisma.status.findMany({ select: { id: true, key: true } })).map((s) => [s.key, s.id]),
+  );
+  const statusId = (key: string) => {
+    const id = statusByKey.get(key);
+    if (!id) throw new Error(`No Status row for "${key}". Run: npm run seed:statuses`);
+    return id;
+  };
+
   const caregiver = await prisma.job.upsert({
     where: { ingestAlias: CAREGIVER_ALIAS },
     update: { title: "Home Health Caregiver", status: "OPEN" },
@@ -283,12 +294,12 @@ async function main() {
     const appliedAt = daysAgo(person.daysAgo);
     await prisma.application.upsert({
       where: { id: applicationId },
-      update: { status: person.status, source: person.source, appliedAt, screening: person.screening ?? Prisma.JsonNull },
+      update: { statusId: statusId(person.status), source: person.source, appliedAt, screening: person.screening ?? Prisma.JsonNull },
       create: {
         id: applicationId,
         candidateId,
         jobId: caregiver.id,
-        status: person.status,
+        statusId: statusId(person.status),
         source: person.source,
         screening: person.screening ?? Prisma.JsonNull,
         appliedAt,
@@ -301,7 +312,7 @@ async function main() {
       await prisma.application.upsert({
         where: { id: secondId },
         update: {
-          status: person.alsoOvernight.status,
+          statusId: statusId(person.alsoOvernight.status),
           source: person.alsoOvernight.source,
           screening: person.alsoOvernight.screening ?? Prisma.JsonNull,
           appliedAt: secondApplied,
@@ -310,7 +321,7 @@ async function main() {
           id: secondId,
           candidateId,
           jobId: overnight.id,
-          status: person.alsoOvernight.status,
+          statusId: statusId(person.alsoOvernight.status),
           source: person.alsoOvernight.source,
           screening: person.alsoOvernight.screening ?? Prisma.JsonNull,
           appliedAt: secondApplied,
@@ -355,13 +366,16 @@ async function main() {
     }
   }
 
+  statusByKeyGlobal = statusByKey;
   await report(caregiver.id);
 }
+
+let statusByKeyGlobal = new Map<string, string>();
 
 async function report(caregiverJobId: string) {
   const [byStatus, bySource, withPhone, withoutPhone, activities, candidates, applications] =
     await Promise.all([
-      prisma.application.groupBy({ by: ["status"], _count: { _all: true } }),
+      prisma.application.groupBy({ by: ["statusId"], _count: { _all: true } }),
       prisma.application.groupBy({ by: ["source"], _count: { _all: true } }),
       prisma.candidate.count({ where: { phone: { not: null } } }),
       prisma.candidate.count({ where: { phone: null } }),
@@ -374,8 +388,9 @@ async function report(caregiverJobId: string) {
     console.log(`  ${label.padEnd(24)}${value}`);
 
   console.log("\nApplications by status");
-  for (const row of byStatus.sort((a, b) => a.status.localeCompare(b.status))) {
-    line(row.status, row._count._all);
+  const keyById = new Map([...statusByKeyGlobal].map(([k, v]) => [v, k]));
+  for (const row of byStatus.sort((a, b) => (keyById.get(a.statusId) ?? "").localeCompare(keyById.get(b.statusId) ?? ""))) {
+    line(keyById.get(row.statusId) ?? row.statusId, row._count._all);
   }
 
   console.log("\nApplications by source");

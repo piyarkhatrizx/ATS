@@ -1,5 +1,4 @@
-import { Badge } from "@/components/ui/badge";
-import { statusLabel, statusTone } from "@/lib/application-status";
+import { StatusPill } from "@/components/korosha/status-pill";
 import { sourceLabel } from "@/lib/application-source";
 import { groupByDay, type TimelineEntry } from "@/lib/activity/timeline";
 import { CALL_OUTCOMES } from "@/lib/activity/types";
@@ -60,9 +59,11 @@ function EntryLine({ entry }: { entry: TimelineEntry }) {
       return (
         <span className="inline-flex flex-wrap items-center gap-1.5">
           Moved
-          <Badge tone={statusTone[payload.from]}>{statusLabel[payload.from]}</Badge>
+          {/* The label snapshot from the payload, not the status's current
+              name: a rename must not rewrite what history says happened. */}
+          <StatusPill label={payload.from} />
           <span aria-hidden="true" className="text-[var(--ink-muted)]">→</span>
-          <Badge tone={statusTone[payload.to]}>{statusLabel[payload.to]}</Badge>
+          <StatusPill label={payload.to} />
         </span>
       );
     case "PARSED":

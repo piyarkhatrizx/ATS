@@ -8,6 +8,7 @@ import { prisma } from "@/lib/prisma";
 import { downloadBuffer } from "@/lib/storage";
 import { normalizeEmail, normalizePhone } from "@/lib/inbound";
 import { intakeApplication } from "@/lib/intake";
+import { getDefaultStatus } from "@/lib/application-status";
 import { writeActivity } from "@/lib/activity/types";
 
 const nullableString = z.string().nullable();
@@ -159,8 +160,11 @@ export async function processParseJob(parseJobId: string) {
     }
 
     // Candidate and Application come from the shared intake path, never from here.
+    const defaultStatus = await getDefaultStatus();
+    if (!defaultStatus) throw new Error("No active open status configured");
     const intake = await intakeApplication({
       jobId: job.jobId,
+      statusId: defaultStatus.id,
       source: "EMAIL",
       ...candidateData(parsed),
     });

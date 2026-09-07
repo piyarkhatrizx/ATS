@@ -57,6 +57,9 @@ describeIntegration("intake", () => {
   let jobId: string;
   let otherJobId: string;
   const createdCandidateIds = new Set<string>();
+  let defaultStatusId: string;
+  let phoneScreenStatusId: string;
+  let screeningStatusId: string;
 
   function track<T extends { candidateId: string }>(result: T) {
     createdCandidateIds.add(result.candidateId);
@@ -96,6 +99,11 @@ describeIntegration("intake", () => {
     ({ moveApplicationStatus } = await import("@/app/actions/application"));
     process.env.ANTHROPIC_API_KEY = "integration-test-key";
 
+    const seeded = await prisma.status.findMany({ select: { id: true, key: true } });
+    defaultStatusId = seeded.find((s) => s.key === "NEW")!.id;
+    phoneScreenStatusId = seeded.find((s) => s.key === "PHONE_SCREEN")!.id;
+    screeningStatusId = seeded.find((s) => s.key === "SCREENING")!.id;
+
     const job = await prisma.job.create({
       data: { title: "Caregiver", reqCode: `CARE-${stamp}`, ingestAlias: alias },
     });
@@ -131,7 +139,7 @@ describeIntegration("intake", () => {
     createdCandidateIds.add(application.candidateId);
 
     expect(application.source).toBe("APPLY_FORM");
-    expect(application.status).toBe("NEW");
+    expect(application.statusId).toBe(defaultStatusId);
     expect(application.screening).toMatchObject({
       isAtLeast18: true,
       caregivingInterest: "GENERAL_CAREGIVER",
@@ -148,6 +156,7 @@ describeIntegration("intake", () => {
     const first = track(
       await intakeApplication({
         jobId,
+        statusId: defaultStatusId,
         source: "APPLY_FORM",
         firstName: "Rita",
         lastName: "Levi",
@@ -159,11 +168,12 @@ describeIntegration("intake", () => {
 
     await prisma.application.update({
       where: { id: first.applicationId },
-      data: { status: "PHONE_SCREEN" },
+      data: { statusId: phoneScreenStatusId },
     });
 
     const second = await intakeApplication({
       jobId,
+        statusId: defaultStatusId,
       source: "APPLY_FORM",
       firstName: "Rita",
       lastName: "Levi",
@@ -180,7 +190,7 @@ describeIntegration("intake", () => {
       where: { id: first.applicationId },
       include: { activities: { orderBy: { createdAt: "asc" } } },
     });
-    expect(application.status).toBe("PHONE_SCREEN");
+    expect(application.statusId).toBe(phoneScreenStatusId);
     expect(application.screening).toMatchObject({ isAtLeast18: true, patientUsesMedicare: true });
     expect(application.activities.map((a) => a.type)).toEqual(["APPLICATION_CREATED", "REAPPLIED"]);
     expect(await prisma.application.count({ where: { candidateId: first.candidateId } })).toBe(1);
@@ -189,10 +199,11 @@ describeIntegration("intake", () => {
   it("gives one candidate two applications across two jobs", async () => {
     const email = `twojobs-${stamp}@example.com`;
     const first = track(
-      await intakeApplication({ jobId, source: "APPLY_FORM", email, phone: "555-222-3333" }),
+      await intakeApplication({ jobId, statusId: defaultStatusId, source: "APPLY_FORM", email, phone: "555-222-3333" }),
     );
     const second = await intakeApplication({
       jobId: otherJobId,
+      statusId: defaultStatusId,
       source: "REFERRAL",
       email,
       phone: "555-222-3333",
@@ -209,6 +220,7 @@ describeIntegration("intake", () => {
     const first = track(
       await intakeApplication({
         jobId,
+        statusId: defaultStatusId,
         source: "APPLY_FORM",
         email: `phone-a-${stamp}@example.com`,
         phone,
@@ -216,6 +228,7 @@ describeIntegration("intake", () => {
     );
     const second = await intakeApplication({
       jobId,
+        statusId: defaultStatusId,
       source: "EMAIL",
       email: null,
       phone: "555.909.0101",
@@ -230,6 +243,7 @@ describeIntegration("intake", () => {
     const rich = track(
       await intakeApplication({
         jobId: otherJobId,
+        statusId: defaultStatusId,
         source: "EMAIL",
         firstName: "Katherine",
         lastName: "Johnson",
@@ -244,6 +258,7 @@ describeIntegration("intake", () => {
 
     await intakeApplication({
       jobId,
+        statusId: defaultStatusId,
       source: "APPLY_FORM",
       firstName: "Katherine",
       lastName: "Johnson",
@@ -263,6 +278,7 @@ describeIntegration("intake", () => {
     const intake = track(
       await intakeApplication({
         jobId: otherJobId,
+        statusId: defaultStatusId,
         source: "MANUAL",
         firstName: "Dorothy",
         lastName: "Vaughan",
@@ -275,22 +291,22 @@ describeIntegration("intake", () => {
       where: { applicationId: intake.applicationId, type: "STATUS_CHANGED" },
     });
 
-    const moved = await moveApplicationStatus(intake.applicationId, "SCREENING");
+    const moved = await moveApplicationStatus(intake.applicationId, screeningStatusId);
     expect(moved.ok).toBe(true);
 
     const application = await prisma.application.findUniqueOrThrow({
       where: { id: intake.applicationId },
     });
-    expect(application.status).toBe("SCREENING");
+    expect(application.statusId).toBe(screeningStatusId);
 
     const changes = await prisma.activity.findMany({
       where: { applicationId: intake.applicationId, type: "STATUS_CHANGED" },
     });
     expect(changes).toHaveLength(activitiesBefore + 1);
-    expect(changes[0].payload).toMatchObject({ from: "NEW", to: "SCREENING" });
+    expect(changes[0].payload).toMatchObject({ from: "New", to: "Screening" });
 
     // A no-op is refused and writes nothing.
-    const repeat = await moveApplicationStatus(intake.applicationId, "SCREENING");
+    const repeat = await moveApplicationStatus(intake.applicationId, screeningStatusId);
     expect(repeat.ok).toBe(false);
     if (!repeat.ok) expect(repeat.error).toBeTruthy();
     expect(
@@ -301,7 +317,7 @@ describeIntegration("intake", () => {
   });
 
   it("rejects a move on an application that does not exist", async () => {
-    const result = await moveApplicationStatus("cl00000000000000000000000", "OFFER");
+    const result = await moveApplicationStatus("cl00000000000000000000000", screeningStatusId);
     expect(result.ok).toBe(false);
   });
 
@@ -353,7 +369,7 @@ describeIntegration("intake", () => {
 
     // Same shape: same job, same starting status, both normalized the same way.
     expect(emailApplication.jobId).toBe(formApplication.jobId);
-    expect(emailApplication.status).toBe(formApplication.status);
+    expect(emailApplication.statusId).toBe(formApplication.statusId);
     expect(emailApplication.candidate.firstName).toBe(formApplication.candidate.firstName);
     expect(emailApplication.candidate.lastName).toBe(formApplication.candidate.lastName);
     expect(emailApplication.candidate.phone).toBe("5556161616");

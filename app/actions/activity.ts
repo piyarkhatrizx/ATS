@@ -1,10 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import type { ApplicationStatus } from "@prisma/client";
 import { getUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { APPLICATION_STATUSES } from "@/lib/application-status";
 import { normalizePhone } from "@/lib/inbound";
 import { writeActivity, type PayloadBody } from "@/lib/activity/types";
 
@@ -153,23 +151,33 @@ export async function togglePinned(
  */
 export async function moveApplicationStatus(
   applicationId: string,
-  nextStatus: ApplicationStatus,
+  nextStatusId: string,
   options: ActorInput = {},
 ): Promise<StatusChangeResult> {
-  if (!APPLICATION_STATUSES.includes(nextStatus)) {
-    return { ok: false, error: "That is not a valid stage." };
-  }
+  const [application, nextStatus] = await Promise.all([
+    prisma.application.findUnique({
+      where: { id: applicationId },
+      select: {
+        id: true,
+        jobId: true,
+        candidateId: true,
+        statusId: true,
+        statusRef: { select: { id: true, label: true } },
+      },
+    }),
+    prisma.status.findUnique({
+      where: { id: nextStatusId },
+      select: { id: true, label: true, active: true },
+    }),
+  ]);
 
-  const application = await prisma.application.findUnique({
-    where: { id: applicationId },
-    select: { id: true, status: true, jobId: true, candidateId: true },
-  });
   if (!application) return { ok: false, error: "That application no longer exists." };
-  if (application.status === nextStatus) {
+  if (!nextStatus) return { ok: false, error: "That is not a valid stage." };
+  if (!nextStatus.active) return { ok: false, error: "That stage is no longer in use." };
+  if (application.statusId === nextStatus.id) {
     return { ok: false, error: "That application is already at this stage." };
   }
 
-  const from = application.status;
   const actorId = await resolveActor(options);
 
   // Status change and its Activity row land together or not at all — the
@@ -177,13 +185,19 @@ export async function moveApplicationStatus(
   await prisma.$transaction(async (transaction) => {
     await transaction.application.update({
       where: { id: application.id },
-      data: { status: nextStatus },
+      data: { statusId: nextStatus.id },
     });
     await writeActivity(transaction, {
       candidateId: application.candidateId,
       applicationId: application.id,
       type: "STATUS_CHANGED",
-      payload: { from, to: nextStatus },
+      // Ids are the truth; labels are a snapshot so history survives a rename.
+      payload: {
+        from: application.statusRef?.label ?? "Unknown",
+        to: nextStatus.label,
+        fromStatusId: application.statusRef?.id ?? null,
+        toStatusId: nextStatus.id,
+      },
       actorId,
     });
   });

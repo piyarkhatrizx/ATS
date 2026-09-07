@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table";
 import { APPLICATION_SOURCES, sourceLabel, sourceTone } from "@/lib/application-source";
 import { ApplicationStatusCell } from "@/components/application-status-cell";
+import { getActiveStatuses } from "@/lib/application-status";
 import { PAGE_SIZE, parseListParams, withParam, type ListSearchParams } from "@/lib/list-params";
 
 export const dynamic = "force-dynamic";
@@ -24,14 +25,18 @@ export default async function JobApplicationsPage({
   const job = await prisma.job.findUnique({ where: { id } });
   if (!job) notFound();
 
-  const where = { jobId: id, ...(source ? { source } : {}), ...(status ? { status } : {}) };
+  const statusOptions = (await getActiveStatuses()).map((s) => ({
+    id: s.id, label: s.label, color: s.color, isTerminal: s.isTerminal,
+  }));
+
+  const where = { jobId: id, ...(source ? { source } : {}), ...(status ? { statusRef: { key: status } } : {}) };
   const [applications, sourceCounts, matching] = await Promise.all([
     prisma.application.findMany({
       where,
       orderBy,
       skip,
       take,
-      include: { candidate: true, documents: { select: { parseStatus: true } } },
+      include: { candidate: true, statusRef: true, documents: { select: { parseStatus: true } } },
     }),
     prisma.application.groupBy({
       by: ["source"],
@@ -94,7 +99,7 @@ export default async function JobApplicationsPage({
                 <TableCell><span className="text-[var(--ink-muted)]">{application.candidate.currentTitle ?? "—"}</span></TableCell>
                 <TableCell><Badge tone={sourceTone[application.source]}>{sourceLabel[application.source]}</Badge></TableCell>
                 <TableCell><span className="text-[var(--ink-muted)]">{application.appliedAt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span></TableCell>
-                <TableCell><ApplicationStatusCell applicationId={application.id} status={application.status} /></TableCell>
+                <TableCell><ApplicationStatusCell applicationId={application.id} statusId={application.statusId} statuses={statusOptions} /></TableCell>
                 <TableCell><span className="text-xs text-[var(--ink-muted)]">{parseStatus.toLowerCase()}</span></TableCell>
               </TableRow>;
             })}</TableBody>

@@ -1,6 +1,5 @@
-import type { ApplicationSource, ApplicationStatus } from "@prisma/client";
+import type { ApplicationSource } from "@prisma/client";
 import { APPLICATION_SOURCES } from "@/lib/application-source";
-import { APPLICATION_STATUSES } from "@/lib/application-status";
 
 /**
  * The one contract for list views: ?source=&status=&sort=&dir=&page=
@@ -17,7 +16,7 @@ export const PAGE_SIZE = 50;
 export const SORT_KEYS = {
   applications: {
     appliedAt: { appliedAt: "desc" },
-    status: { status: "asc" },
+    status: { statusRef: { order: "asc" } },
     source: { source: "asc" },
     name: { candidate: { lastName: "asc" } },
   },
@@ -38,7 +37,8 @@ const DEFAULT_SORT: { [V in ListView]: SortKey<V> } = {
 
 export type ParsedListParams<V extends ListView> = {
   source: ApplicationSource | null;
-  status: ApplicationStatus | null;
+  /** A Status.key. Validated against the table by the caller, not here. */
+  status: string | null;
   sort: SortKey<V>;
   dir: "asc" | "desc";
   page: number;
@@ -84,10 +84,12 @@ export function parseListParams<V extends ListView>(
     : null;
   if (rawSource && !source) rejected.push("source");
 
+  // Statuses are user-editable rows, so there is no static list to check
+  // against here. The shape is constrained (a single key-safe token) and the
+  // caller resolves it against the table; an unknown key yields no rows rather
+  // than reaching Prisma as something unexpected.
   const rawStatus = first(params.status);
-  const status = APPLICATION_STATUSES.includes(rawStatus as ApplicationStatus)
-    ? (rawStatus as ApplicationStatus)
-    : null;
+  const status = rawStatus && /^[A-Za-z0-9_-]{1,64}$/.test(rawStatus) ? rawStatus : null;
   if (rawStatus && !status) rejected.push("status");
 
   const allowed = SORT_KEYS[view] as Record<string, Record<string, unknown>>;

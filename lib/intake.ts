@@ -15,6 +15,8 @@ export type IntakeInput = {
   currentEmployer?: string | null;
   linkedinUrl?: string | null;
   screening?: Prisma.InputJsonValue | null;
+  /** Status the application starts in. Resolved by the caller from the table. */
+  statusId: string;
   /** Preserve an original submission time. Defaults to now. */
   appliedAt?: Date;
 };
@@ -108,6 +110,7 @@ export async function intakeApplication(input: IntakeInput): Promise<IntakeResul
           candidateId: candidate.id,
           jobId: input.jobId,
           source: input.source,
+          statusId: input.statusId,
           screening: input.screening ?? Prisma.JsonNull,
           ...(input.appliedAt ? { appliedAt: input.appliedAt } : {}),
         },

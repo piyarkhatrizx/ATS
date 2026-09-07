@@ -9,6 +9,5 @@ export * from "./field";
 export * from "./input";
 export * from "./select";
 export * from "./slide-over";
-export * from "./status-select";
 export * from "./table";
 export * from "./toast";

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { KEmptyState } from "@/components/korosha/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table";
-import { statusLabel, statusTone } from "@/lib/application-status";
+import { StatusPill } from "@/components/korosha/status-pill";
 import { PAGE_SIZE, parseListParams, withParam, type ListSearchParams } from "@/lib/list-params";
 
 export const dynamic = "force-dynamic";
@@ -48,14 +48,14 @@ export default async function CaregiverApplicationsPage({
 
   // This view is the apply-form funnel by definition, so source is fixed here
   // rather than read from the URL.
-  const where = { source: "APPLY_FORM" as const, ...(status ? { status } : {}) };
+  const where = { source: "APPLY_FORM" as const, ...(status ? { statusRef: { key: status } } : {}) };
   const [applications, matching] = await Promise.all([
     prisma.application.findMany({
       where,
       orderBy,
       skip,
       take,
-      include: { candidate: true, job: { select: { title: true } } },
+      include: { candidate: true, job: { select: { title: true } }, statusRef: true },
     }),
     prisma.application.count({ where }),
   ]);
@@ -109,7 +109,7 @@ export default async function CaregiverApplicationsPage({
                       <div>{application.candidate.email ?? "—"}</div>
                       <div className="mt-1 text-xs text-[var(--ink-muted)]">{application.candidate.phone ?? "—"}</div>
                     </TableCell>
-                    <TableCell><Badge tone={statusTone[application.status]}>{statusLabel[application.status]}</Badge></TableCell>
+                    <TableCell><StatusPill color={application.statusRef.color} label={application.statusRef.label} /></TableCell>
                     <TableCell><Badge tone={answerTone(screening.isAtLeast18)}>{answer(screening.isAtLeast18)}</Badge></TableCell>
                     <TableCell><Badge tone={answerTone(screening.isCpaCertified)}>{answer(screening.isCpaCertified)}</Badge></TableCell>
                     <TableCell><Badge tone={answerTone(screening.patientUsesMedicare)}>{answer(screening.patientUsesMedicare)}</Badge></TableCell>

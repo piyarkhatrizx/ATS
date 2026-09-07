@@ -16,6 +16,7 @@
     "db:studio": "prisma studio",
     "check:ingest": "tsx --env-file=.env scripts/check-ingest.ts",
     "seed": "tsx --env-file=.env prisma/seed.ts",
+    "backfill:events": "tsx --env-file=.env prisma/backfill-events.ts",
     "seed:statuses": "tsx --env-file=.env prisma/seed-statuses.ts",
     "seed:caregiver-job": "tsx --env-file=.env scripts/seed-caregiver-job.ts"
   },

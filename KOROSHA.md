@@ -15,7 +15,7 @@ One codebase, one flag. No second repo.
 All tier gating goes through lib/features.ts. Never scatter env checks.
 
 ## Design
-Black, white, light purple #e1b9f0. Dark glassmorphism.
+ white, light purple #e1b9f0. light glassmorphism.
 - Panels are dark. Purple appears only in ambient background glows,
   borders, focus rings, and primary buttons. Purple is never a panel fill.
 - Body text always sits on a dark surface, never directly on a glow.

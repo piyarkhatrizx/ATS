@@ -20,15 +20,31 @@ describe("list searchParams contract", () => {
   it("accepts an allowlisted sort key and honours dir", () => {
     const parsed = parseListParams("applications", { sort: "status", dir: "desc" });
     expect(parsed.sort).toBe("status");
-    expect(parsed.orderBy).toEqual({ status: "desc" });
+    expect(parsed.orderBy).toEqual({ statusRef: { order: "desc" } });
     expect(parsed.rejected).toEqual([]);
   });
 
-  it("drops unknown source and status values", () => {
-    const parsed = parseListParams("applications", { source: "CARRIER_PIGEON", status: "PROMOTED" });
+  it("drops an unknown source, which is still a closed set", () => {
+    const parsed = parseListParams("applications", { source: "CARRIER_PIGEON" });
     expect(parsed.source).toBeNull();
-    expect(parsed.status).toBeNull();
-    expect(parsed.rejected).toEqual(expect.arrayContaining(["source", "status"]));
+    expect(parsed.rejected).toContain("source");
+  });
+
+  it("passes a well-formed status key through, since statuses are rows now", () => {
+    // There is no static list to validate against any more. The shape is
+    // constrained and the caller resolves it against the table; an unknown key
+    // simply matches nothing.
+    const parsed = parseListParams("applications", { status: "AWAITING_DOCS" });
+    expect(parsed.status).toBe("AWAITING_DOCS");
+    expect(parsed.rejected).toEqual([]);
+  });
+
+  it("rejects a status key that is not key-shaped", () => {
+    for (const bad of ["../etc", "a b", "x".repeat(65), "{}"]) {
+      const parsed = parseListParams("applications", { status: bad });
+      expect(parsed.status, bad).toBeNull();
+      expect(parsed.rejected, bad).toContain("status");
+    }
   });
 
   it("keeps valid filters", () => {

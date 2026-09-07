@@ -1,7 +1,6 @@
 import { z } from "zod";
 import type { Prisma } from "@prisma/client";
 import { APPLICATION_SOURCES } from "@/lib/application-source";
-import { APPLICATION_STATUSES } from "@/lib/application-status";
 
 /**
  * Activity.type stays a String column, not a Prisma enum, so the rows written
@@ -36,11 +35,10 @@ export const CALL_OUTCOMES = [
 export type CallOutcome = (typeof CALL_OUTCOMES)[number];
 
 const sourceEnum = z.enum(APPLICATION_SOURCES);
-const statusEnum = z.enum(APPLICATION_STATUSES);
 
 /**
- * One variant per type. The four legacy shapes are transcribed from what the
- * existing call sites actually write, not invented:
+ * One variant per type. The legacy shapes are transcribed from what the call
+ * sites actually write, not invented:
  *   PARSED              { documentId }        lib/parser.ts
  *   APPLICATION_CREATED { source }            lib/intake.ts
  *   REAPPLIED           { source }            lib/intake.ts
@@ -48,13 +46,31 @@ const statusEnum = z.enum(APPLICATION_STATUSES);
  *
  * STATUS_CHANGED deliberately permits from === to. Rows predating the no-op
  * rejection carry {"from":"NEW","to":"NEW"}, and encoding the newer rule here
- * would retroactively invalidate real history.
+ * would retroactively invalidate real history. `from`/`to` are plain strings
+ * rather than an enum now that statuses are user-editable rows.
  */
 export const activityPayloadSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("PARSED"), documentId: z.string() }),
   z.object({ type: z.literal("APPLICATION_CREATED"), source: sourceEnum }),
   z.object({ type: z.literal("REAPPLIED"), source: sourceEnum }),
-  z.object({ type: z.literal("STATUS_CHANGED"), from: statusEnum, to: statusEnum }),
+  /**
+   * Stores BOTH ids and label snapshots.
+   *
+   * The ids are the truth: renaming a status must not rewrite history, and
+   * analytics joins on them. The labels are what the status was CALLED at the
+   * time, so a timeline still reads correctly after a rename and still renders
+   * if a status is later reassigned away.
+   *
+   * Both id fields are nullable because the 29 rows written before this change
+   * carry labels only. Strict on write, lenient on read.
+   */
+  z.object({
+    type: z.literal("STATUS_CHANGED"),
+    from: z.string(),
+    to: z.string(),
+    fromStatusId: z.string().nullable().optional(),
+    toStatusId: z.string().nullable().optional(),
+  }),
   // The note text lives in Activity.body, which is searchable; the payload
   // carries nothing so a note is never half in one place and half in the other.
   z.object({ type: z.literal("NOTE_ADDED") }),

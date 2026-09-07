@@ -13,17 +13,6 @@ enum JobStatus {
   CLOSED
 }
 
-enum ApplicationStatus {
-  NEW
-  SCREENING
-  PHONE_SCREEN
-  INTERVIEW
-  OFFER
-  HIRED
-  REJECTED
-  WITHDRAWN
-}
-
 enum ParseStatus {
   PENDING
   PROCESSING
@@ -130,8 +119,7 @@ model Application {
   id         String            @id @default(cuid())
   candidateId String
   jobId      String?
-  status     ApplicationStatus @default(NEW)
-  statusId   String?
+  statusId   String
   source     ApplicationSource @default(MANUAL)
   screening  Json?
   appliedAt  DateTime          @default(now())
@@ -140,14 +128,13 @@ model Application {
   firstCalledAt      DateTime?
   candidate  Candidate         @relation(fields: [candidateId], references: [id], onDelete: Cascade)
   job        Job?              @relation(fields: [jobId], references: [id], onDelete: SetNull)
-  statusRef  Status?           @relation(fields: [statusId], references: [id], onDelete: SetNull)
+  statusRef  Status            @relation(fields: [statusId], references: [id], onDelete: Restrict)
   documents  Document[]
   activities Activity[]
   formResponses FormResponse[]
 
   @@unique([candidateId, jobId])
   @@index([jobId, appliedAt])
-  @@index([status])
   @@index([source, appliedAt])
   @@index([jobId, source])
 }
@@ -236,6 +223,9 @@ model Status {
   color      String
   order      Int
   isTerminal Boolean        @default(false)
+  /// Deactivated statuses keep their applications and their history; they are
+  /// simply no longer offered when moving an application.
+  active     Boolean        @default(true)
   countsAs   StatusCountsAs @default(OPEN)
   createdAt  DateTime       @default(now())
   updatedAt  DateTime       @updatedAt

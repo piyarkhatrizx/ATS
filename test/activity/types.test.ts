@@ -13,7 +13,8 @@ describe("activity payload variants", () => {
       { type: "PARSED", documentId: "doc_1" },
       { type: "APPLICATION_CREATED", source: "APPLY_FORM" },
       { type: "REAPPLIED", source: "EMAIL" },
-      { type: "STATUS_CHANGED", from: "NEW", to: "SCREENING" },
+      { type: "STATUS_CHANGED", from: "New", to: "Screening" },
+      { type: "STATUS_CHANGED", from: "New", to: "Screening", fromStatusId: "s_1", toStatusId: "s_2" },
       { type: "NOTE_ADDED" },
       { type: "EMAIL_SENT", subject: "Hello", messageId: null },
       { type: "EMAIL_RECEIVED", subject: null, messageId: "m_1" },
@@ -49,12 +50,25 @@ describe("activity payload variants", () => {
     ).toBe(true);
   });
 
+  it("still parses the 29 legacy STATUS_CHANGED rows that carry labels only", () => {
+    // Status ids did not exist when those were written. Strict on write,
+    // lenient on read: they must keep rendering.
+    const legacy = activityPayloadSchema.safeParse({
+      type: "STATUS_CHANGED",
+      from: "NEW",
+      to: "SCREENING",
+    });
+    expect(legacy.success).toBe(true);
+    if (legacy.success && legacy.data.type === "STATUS_CHANGED") {
+      expect(legacy.data.fromStatusId).toBeUndefined();
+    }
+  });
+
   it("rejects the wrong payload for a type", () => {
     const invalid = [
       { type: "STATUS_CHANGED", source: "APPLY_FORM" },
       { type: "APPLICATION_CREATED", documentId: "doc_1" },
       { type: "PARSED" },
-      { type: "STATUS_CHANGED", from: "NEW", to: "NOT_A_STAGE" },
       { type: "CALL_LOGGED", direction: "SIDEWAYS", outcome: "CONNECTED", durationSeconds: 5, phoneNumber: "1", loggedManually: true },
       // loggedManually must be literally true until telephony is real.
       { type: "CALL_LOGGED", direction: "INBOUND", outcome: "CONNECTED", durationSeconds: 5, phoneNumber: "1", loggedManually: false },

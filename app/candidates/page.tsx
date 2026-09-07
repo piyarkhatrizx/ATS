@@ -19,7 +19,7 @@ export default async function CandidatesPage({
   // matches" — the filter belongs to Application, so it applies as a relation.
   const applicationFilter = {
     ...(source ? { source } : {}),
-    ...(status ? { status } : {}),
+    ...(status ? { statusRef: { key: status } } : {}),
   };
   const where = Object.keys(applicationFilter).length
     ? { applications: { some: applicationFilter } }

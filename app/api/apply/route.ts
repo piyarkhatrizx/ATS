@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { caregiverApplicationSchema } from "@/lib/caregiver-application";
 import { intakeApplication } from "@/lib/intake";
+import { getDefaultStatus } from "@/lib/application-status";
 import { prisma } from "@/lib/prisma";
 
 const CAREGIVER_JOB_ALIAS = process.env.CAREGIVER_JOB_ALIAS ?? "caregiver";
@@ -21,8 +22,17 @@ export async function POST(request: Request) {
       );
     }
 
+    // New leads start in the first open stage, resolved from the table rather
+    // than a hardcoded name.
+    const defaultStatus = await getDefaultStatus();
+    if (!defaultStatus) {
+      console.error("No active open status configured; cannot accept applications");
+      return NextResponse.json({ error: "Unable to submit application" }, { status: 500 });
+    }
+
     const result = await intakeApplication({
       jobId: job.id,
+      statusId: defaultStatus.id,
       source: "APPLY_FORM",
       firstName: input.firstName,
       lastName: input.lastName,

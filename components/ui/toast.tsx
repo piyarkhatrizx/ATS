@@ -28,7 +28,7 @@ export function Toaster() {
           cancelButton:
             "ui-button inline-flex h-6 shrink-0 items-center border border-[var(--line)] px-2 text-[var(--text-xs)] font-semibold",
           error: "text-[var(--status-rejected)]",
-          success: "text-[var(--status-hired)]",
+          success: "text-[var(--status-accepted)]",
         },
       }}
     />

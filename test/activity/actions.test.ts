@@ -20,6 +20,9 @@ describeIntegration("activity actions and timeline", () => {
   let applicationAId: string;
   let applicationBId: string;
   let actorId: string;
+  let newStatusId: string;
+  let screeningStatusId: string;
+  let phoneScreenStatusId: string;
 
   beforeAll(async () => {
     ({ prisma } = await import("@/lib/prisma"));
@@ -39,6 +42,12 @@ describeIntegration("activity actions and timeline", () => {
     });
     candidateId = candidate.id;
 
+    const seeded = await prisma.status.findMany({ select: { id: true, key: true } });
+    const byKey = new Map(seeded.map((s) => [s.key, s.id]));
+    newStatusId = byKey.get("NEW")!;
+    screeningStatusId = byKey.get("SCREENING")!;
+    phoneScreenStatusId = byKey.get("PHONE_SCREEN")!;
+
     const jobA = await prisma.job.create({
       data: { title: "Job A", reqCode: `TLA-${stamp}`, ingestAlias: `tl-a-${stamp}` },
     });
@@ -49,10 +58,10 @@ describeIntegration("activity actions and timeline", () => {
     jobBId = jobB.id;
 
     applicationAId = (
-      await prisma.application.create({ data: { candidateId, jobId: jobAId, source: "APPLY_FORM" } })
+      await prisma.application.create({ data: { candidateId, jobId: jobAId, source: "APPLY_FORM", statusId: newStatusId } })
     ).id;
     applicationBId = (
-      await prisma.application.create({ data: { candidateId, jobId: jobBId, source: "REFERRAL" } })
+      await prisma.application.create({ data: { candidateId, jobId: jobBId, source: "REFERRAL", statusId: newStatusId } })
     ).id;
   });
 
@@ -132,17 +141,22 @@ describeIntegration("activity actions and timeline", () => {
   });
 
   it("moveApplicationStatus still writes STATUS_CHANGED and rejects a no-op", async () => {
-    const moved = await moveApplicationStatus(applicationAId, "SCREENING", { actorId });
+    const moved = await moveApplicationStatus(applicationAId, screeningStatusId, { actorId });
     expect(moved.ok).toBe(true);
 
     const changes = await prisma.activity.findMany({
       where: { applicationId: applicationAId, type: "STATUS_CHANGED" },
     });
     expect(changes).toHaveLength(1);
-    expect(changes[0].payload).toMatchObject({ from: "NEW", to: "SCREENING" });
+    expect(changes[0].payload).toMatchObject({
+      from: "New",
+      to: "Screening",
+      fromStatusId: newStatusId,
+      toStatusId: screeningStatusId,
+    });
     expect(changes[0].actorId).toBe(actorId);
 
-    const repeat = await moveApplicationStatus(applicationAId, "SCREENING", { actorId });
+    const repeat = await moveApplicationStatus(applicationAId, screeningStatusId, { actorId });
     expect(repeat.ok).toBe(false);
     expect(
       await prisma.activity.count({ where: { applicationId: applicationAId, type: "STATUS_CHANGED" } }),
@@ -150,7 +164,7 @@ describeIntegration("activity actions and timeline", () => {
   });
 
   it("an explicit null actorId stays null, so system writes are not misattributed", async () => {
-    await moveApplicationStatus(applicationBId, "PHONE_SCREEN", { actorId: null });
+    await moveApplicationStatus(applicationBId, phoneScreenStatusId, { actorId: null });
     const change = await prisma.activity.findFirstOrThrow({
       where: { applicationId: applicationBId, type: "STATUS_CHANGED" },
     });
