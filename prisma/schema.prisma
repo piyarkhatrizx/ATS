@@ -38,11 +38,6 @@ enum ParseJobStatus {
   FAILED
 }
 
-enum CaregivingInterest {
-  GENERAL_CAREGIVER
-  CURRENTLY_CARING_FOR_PATIENT
-}
-
 enum ApplicationSource {
   APPLY_FORM
   EMAIL
@@ -95,22 +90,6 @@ model VerificationToken {
   expires    DateTime
 
   @@id([identifier, token])
-}
-
-model CaregiverApplication {
-  id                    String            @id @default(cuid())
-  isAtLeast18           Boolean
-  isCpaCertified        Boolean?
-  patientUsesMedicare   Boolean
-  caregivingInterest    CaregivingInterest
-  firstName             String
-  lastName              String
-  phone                 String
-  email                 String
-  createdAt             DateTime          @default(now())
-
-  @@index([email])
-  @@index([createdAt])
 }
 
 model Job {

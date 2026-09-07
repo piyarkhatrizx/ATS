@@ -5,29 +5,60 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table";
+import { statusLabel, statusTone } from "@/lib/application-status";
+import { PAGE_SIZE, parseListParams, withParam, type ListSearchParams } from "@/lib/list-params";
 
 export const dynamic = "force-dynamic";
 
-function answer(value: boolean | null) {
-  if (value === null) return "Not answered";
+/**
+ * Apply-form submissions, read from Application rather than a side table.
+ * The four questions live in Application.screening, written by lib/intake.ts.
+ */
+type Screening = {
+  isAtLeast18?: boolean | null;
+  isCpaCertified?: boolean | null;
+  patientUsesMedicare?: boolean | null;
+  caregivingInterest?: string | null;
+};
+
+function answer(value: boolean | null | undefined) {
+  if (value === null || value === undefined) return "Not answered";
   return value ? "Yes" : "No";
 }
 
-function interestLabel(value: string) {
+function answerTone(value: boolean | null | undefined) {
+  if (value === null || value === undefined) return "neutral" as const;
+  return value ? ("success" as const) : ("rejected" as const);
+}
+
+function interestLabel(value: string | null | undefined) {
+  if (!value) return "—";
   return value === "CURRENTLY_CARING_FOR_PATIENT"
     ? "Currently caring for a patient"
     : "General caregiver position";
 }
 
-function answerTone(value: boolean | null) {
-  if (value === null) return "neutral" as const;
-  return value ? "success" as const : "rejected" as const;
-}
+export default async function CaregiverApplicationsPage({
+  searchParams,
+}: {
+  searchParams: Promise<ListSearchParams>;
+}) {
+  const query = await searchParams;
+  const { status, orderBy, skip, take, page } = parseListParams("applications", query);
 
-export default async function CaregiverApplicationsPage() {
-  const applications = await prisma.caregiverApplication.findMany({
-    orderBy: { createdAt: "desc" },
-  });
+  // This view is the apply-form funnel by definition, so source is fixed here
+  // rather than read from the URL.
+  const where = { source: "APPLY_FORM" as const, ...(status ? { status } : {}) };
+  const [applications, matching] = await Promise.all([
+    prisma.application.findMany({
+      where,
+      orderBy,
+      skip,
+      take,
+      include: { candidate: true, job: { select: { title: true } } },
+    }),
+    prisma.application.count({ where }),
+  ]);
 
   return (
     <main className="min-h-screen px-6 py-8 sm:px-10 lg:px-16">
@@ -35,7 +66,7 @@ export default async function CaregiverApplicationsPage() {
         <PageHeader
           eyebrow="Care team intake"
           title="Caregiver applications"
-          subtitle={`${applications.length} received`}
+          subtitle={`${matching} received`}
           actions={
             <Button asChild>
               <Link href="/apply">Open application</Link>
@@ -49,6 +80,7 @@ export default async function CaregiverApplicationsPage() {
               <tr>
                 <TableCell header>Applicant</TableCell>
                 <TableCell header>Contact</TableCell>
+                <TableCell header>Stage</TableCell>
                 <TableCell header>18 or older</TableCell>
                 <TableCell header>CPA certified</TableCell>
                 <TableCell header>Medicare</TableCell>
@@ -57,17 +89,35 @@ export default async function CaregiverApplicationsPage() {
               </tr>
             </TableHeader>
             <TableBody>
-              {applications.map((application) => (
-                <TableRow key={application.id}>
-                  <TableCell><span className="font-medium">{application.firstName} {application.lastName}</span></TableCell>
-                  <TableCell><div>{application.email}</div><div className="mt-1 text-xs text-[var(--ink-muted)]">{application.phone}</div></TableCell>
-                  <TableCell><Badge tone={answerTone(application.isAtLeast18)}>{answer(application.isAtLeast18)}</Badge></TableCell>
-                  <TableCell><Badge tone={answerTone(application.isCpaCertified)}>{answer(application.isCpaCertified)}</Badge></TableCell>
-                  <TableCell><Badge tone={answerTone(application.patientUsesMedicare)}>{answer(application.patientUsesMedicare)}</Badge></TableCell>
-                  <TableCell>{interestLabel(application.caregivingInterest)}</TableCell>
-                  <TableCell><span className="text-[var(--ink-muted)]">{application.createdAt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span></TableCell>
-                </TableRow>
-              ))}
+              {applications.map((application) => {
+                const screening = (application.screening ?? {}) as Screening;
+                const name =
+                  [application.candidate.firstName, application.candidate.lastName]
+                    .filter(Boolean)
+                    .join(" ") || "Unnamed candidate";
+                return (
+                  <TableRow key={application.id}>
+                    <TableCell>
+                      <Link
+                        href={`/candidates/${application.candidateId}`}
+                        className="font-medium hover:text-[var(--accent-deep)]"
+                      >
+                        {name}
+                      </Link>
+                    </TableCell>
+                    <TableCell>
+                      <div>{application.candidate.email ?? "—"}</div>
+                      <div className="mt-1 text-xs text-[var(--ink-muted)]">{application.candidate.phone ?? "—"}</div>
+                    </TableCell>
+                    <TableCell><Badge tone={statusTone[application.status]}>{statusLabel[application.status]}</Badge></TableCell>
+                    <TableCell><Badge tone={answerTone(screening.isAtLeast18)}>{answer(screening.isAtLeast18)}</Badge></TableCell>
+                    <TableCell><Badge tone={answerTone(screening.isCpaCertified)}>{answer(screening.isCpaCertified)}</Badge></TableCell>
+                    <TableCell><Badge tone={answerTone(screening.patientUsesMedicare)}>{answer(screening.patientUsesMedicare)}</Badge></TableCell>
+                    <TableCell>{interestLabel(screening.caregivingInterest)}</TableCell>
+                    <TableCell><span className="text-[var(--ink-muted)]">{application.appliedAt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span></TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
           {!applications.length && (
@@ -77,6 +127,17 @@ export default async function CaregiverApplicationsPage() {
               description="Submissions from the public application page land here the moment they are received."
               action={{ label: "Open application form", href: "/apply" }}
             />
+          )}
+          {matching > PAGE_SIZE && (
+            <nav aria-label="Pagination" className="mt-6 flex items-center justify-between border-t border-[var(--line)] pt-4 text-sm">
+              <span className="text-[var(--ink-muted)]">
+                {skip + 1}–{Math.min(skip + PAGE_SIZE, matching)} of {matching}
+              </span>
+              <span className="flex gap-4">
+                {page > 1 && <Link className="font-semibold text-[var(--accent-deep)]" href={`/applications${withParam(query, "page", String(page - 1))}`}>← Previous</Link>}
+                {skip + PAGE_SIZE < matching && <Link className="font-semibold text-[var(--accent-deep)]" href={`/applications${withParam(query, "page", String(page + 1))}`}>Next →</Link>}
+              </span>
+            </nav>
           )}
         </div>
       </div>

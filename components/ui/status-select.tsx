@@ -24,11 +24,25 @@ const OPEN_STAGES = APPLICATION_STATUSES.filter(
 );
 
 /**
+ * The shape every status mutation returns. Matching the server action's own
+ * result type is deliberate: a caller can hand the action's return value
+ * straight back, with nothing to remember and nothing to translate.
+ */
+export type StatusChangeResult = { ok: true } | { ok: false; error: string };
+
+/**
  * Moves one Application between the eight pipeline stages.
  *
  * Optimistic on purpose: the recruiter's next action is the next candidate, not
  * a spinner. If the write fails we put the old stage back and say so in a toast
  * with an explicit retry, rather than silently diverging from the server.
+ *
+ * `onChange` reports failure by RETURNING `{ ok: false, error }`, not by
+ * throwing. A convention where the caller must remember to throw gets forgotten
+ * exactly once, and a failed status change then renders as a successful one —
+ * the optimistic stage sticks and the recruiter believes the move landed. A
+ * thrown error is still caught below, so an unexpected crash cannot masquerade
+ * as success either.
  */
 export function StatusSelect({
   value,
@@ -38,7 +52,7 @@ export function StatusSelect({
   label = "Stage",
 }: {
   value: ApplicationStatus;
-  onChange?: (next: ApplicationStatus) => void | Promise<void>;
+  onChange?: (next: ApplicationStatus) => Promise<StatusChangeResult | void> | StatusChangeResult | void;
   disabled?: boolean;
   align?: "start" | "end";
   label?: string;
@@ -55,14 +69,22 @@ export function StatusSelect({
     setOptimistic(stage);
 
     startTransition(async () => {
-      try {
-        await onChange?.(stage);
-        setOptimistic(null);
-      } catch {
+      const fail = (message: string) => {
         setOptimistic(previous);
-        toast.error(`Could not move to ${statusLabel[stage]}`, {
+        toast.error(message, {
           action: { label: "Retry", onClick: () => select(stage) },
         });
+      };
+
+      try {
+        const result = await onChange?.(stage);
+        if (result && result.ok === false) {
+          fail(result.error || `Could not move to ${statusLabel[stage]}`);
+          return;
+        }
+        setOptimistic(null);
+      } catch {
+        fail(`Could not move to ${statusLabel[stage]}`);
       }
     });
   }

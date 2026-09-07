@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/ui/page-header";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table";
 import { APPLICATION_SOURCES, sourceLabel, sourceTone } from "@/lib/application-source";
-import { statusLabel, statusTone } from "@/lib/application-status";
+import { ApplicationStatusCell } from "@/components/application-status-cell";
 import { PAGE_SIZE, parseListParams, withParam, type ListSearchParams } from "@/lib/list-params";
 
 export const dynamic = "force-dynamic";
@@ -94,7 +94,7 @@ export default async function JobApplicationsPage({
                 <TableCell><span className="text-[var(--ink-muted)]">{application.candidate.currentTitle ?? "—"}</span></TableCell>
                 <TableCell><Badge tone={sourceTone[application.source]}>{sourceLabel[application.source]}</Badge></TableCell>
                 <TableCell><span className="text-[var(--ink-muted)]">{application.appliedAt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span></TableCell>
-                <TableCell><Badge tone={statusTone[application.status]}>{statusLabel[application.status] ?? application.status}</Badge></TableCell>
+                <TableCell><ApplicationStatusCell applicationId={application.id} status={application.status} /></TableCell>
                 <TableCell><span className="text-xs text-[var(--ink-muted)]">{parseStatus.toLowerCase()}</span></TableCell>
               </TableRow>;
             })}</TableBody>

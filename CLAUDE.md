@@ -45,6 +45,25 @@ in a page.
 - `withParam(query, key, value)` builds links that preserve the other params;
   changing any of them resets `page`.
 
+## Gotchas that have already cost time
+
+- Non-component exports from a `"use client"` module become client references on
+  the server. Constants shared between a client component and a server file go
+  in a third neutral module.
+- `DATABASE_URL` uses the Supabase **session pooler** (IPv4). `DIRECT_URL` uses
+  the direct host, which is IPv6-only and will not resolve from most laptops or
+  from CI.
+- `revalidatePath` throws outside a request context, and it runs *after* the
+  transaction commits. Never let it turn a committed write into a reported
+  failure.
+- Server actions return a discriminated result. They do not throw for expected
+  failures, and a component must not require its caller to translate one into
+  the other — that convention gets forgotten exactly once, and a failed write
+  then renders as a successful one.
+- One agent per working tree. A second agent editing concurrently has already
+  caused an orphan branch, an unreviewed commit, and a rename that broke
+  callers.
+
 ## Testing
 
 Vitest. Every ingest and dedupe change needs a test. Fixtures live in `test/fixtures/`.

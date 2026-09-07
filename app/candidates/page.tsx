@@ -46,7 +46,10 @@ export default async function CandidatesPage({
       />
       <div className="mt-4">
         {candidates.length ? (
-          <Table>
+          // min-w so the table scrolls rather than compresses, matching
+          // /jobs/[id] and /applications: emails and role titles run long, and
+          // a squeezed column wraps unpredictably instead of staying scannable.
+          <Table className="min-w-[720px]">
             <TableHeader>
               <tr>
                 <TableCell header>Name</TableCell>

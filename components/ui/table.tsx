@@ -78,7 +78,14 @@ export function TableRow({
   );
 }
 
-/** Dense by design: 28px rows, so ~25 candidates fit on a laptop screen. */
+/**
+ * `py-1` gives a ~28px row ONLY when every cell is a single line.
+ *
+ * The real list views stack name over email, which makes rows ~47px, so about
+ * 12 fit above the fold on /jobs/[id] at an 800px viewport — not the ~25 an
+ * earlier version of this comment claimed. Measure before relying on a number
+ * here: row height is set by the tallest cell's content, not by this padding.
+ */
 const cellPadding = "px-2 py-1 align-middle";
 
 export function TableCell({
