@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { SectionLabel } from "@/components/ui/section-label";
+import { SIDEBAR_COOKIE } from "@/lib/sidebar-cookie";
 
 const NAV = [
   { href: "/", label: "Jobs", glyph: "J" },
@@ -11,8 +12,6 @@ const NAV = [
   { href: "/applications", label: "Applications", glyph: "A" },
   { href: "/design-system", label: "Design system", glyph: "D" },
 ];
-
-const COOKIE = "ats-sidebar";
 
 function isActive(pathname: string, href: string) {
   return href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
@@ -35,7 +34,7 @@ export function AppSidebar({ initialCollapsed }: { initialCollapsed: boolean }) 
   function toggle() {
     const next = !collapsed;
     setCollapsed(next);
-    document.cookie = `${COOKIE}=${next ? "collapsed" : "expanded"}; path=/; max-age=31536000; samesite=lax`;
+    document.cookie = `${SIDEBAR_COOKIE}=${next ? "collapsed" : "expanded"}; path=/; max-age=31536000; samesite=lax`;
   }
 
   return (
@@ -90,5 +89,3 @@ export function AppSidebar({ initialCollapsed }: { initialCollapsed: boolean }) 
     </nav>
   );
 }
-
-export const SIDEBAR_COOKIE = COOKIE;

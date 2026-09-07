@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import "./globals.css";
-import { AppSidebar, SIDEBAR_COOKIE } from "@/components/app-sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
+import { SIDEBAR_COOKIE } from "@/lib/sidebar-cookie";
 import { Toaster } from "@/components/ui/toast";
 
 export const metadata: Metadata = {
